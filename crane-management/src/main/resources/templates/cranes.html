@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Cranes - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('cranes')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div class="row g-3">
+      <div class="col-md-5">
+        <div class="card-panel">
+          <div class="panel-title">🏗️ <span th:text="${crane.id != null ? 'Edit Crane' : 'Add Crane'}">Add Crane</span></div>
+          <form th:action="@{/cranes/save}" th:object="${crane}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="mb-2">
+              <label class="form-label">Crane No *</label>
+              <input type="text" th:field="*{craneNo}" class="form-control" placeholder="KCN-06" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Registration No</label>
+              <input type="text" th:field="*{registrationNo}" class="form-control" placeholder="TN38CTxxxx">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Type</label>
+              <select th:field="*{type}" class="form-select">
+                <option value="Hydra">Hydra</option>
+                <option value="Crawler">Crawler</option>
+                <option value="Mobile">Mobile</option>
+                <option value="Tower">Tower</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Capacity</label>
+              <input type="text" th:field="*{capacity}" class="form-control" placeholder="12 Ton">
+            </div>
+            <button type="submit" class="btn btn-brand-orange w-100">Save Crane</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div class="card-panel">
+          <div class="panel-title">All Cranes</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Crane No</th><th>Registration No</th><th>Type</th><th>Capacity</th><th>Trips</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr th:each="c : ${cranes}">
+                  <td><a th:href="@{'/cranes/' + ${c.id} + '/trip-records'}" th:text="${c.craneNo}">KCN-01</a></td>
+                  <td th:text="${c.registrationNo}">TN38CT7504</td>
+                  <td th:text="${c.type}">Hydra</td>
+                  <td th:text="${c.capacity}">12 Ton</td>
+                  <td><a th:href="@{'/cranes/' + ${c.id} + '/trip-records'}" class="btn btn-sm btn-brand-blue">Details</a></td>
+                  <td>
+                    <a th:href="@{'/cranes/edit/' + ${c.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a th:href="@{'/cranes/delete/' + ${c.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this crane?')">Delete</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(cranes)}"><td colspan="6" class="text-center text-muted">No cranes yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

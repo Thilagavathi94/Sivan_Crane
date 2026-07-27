@@ -1,0 +1,133 @@
+:root {
+  --navy: #0f1b3d;
+  --navy-dark: #0a1329;
+  --orange: #f7941d;
+  --blue: #2f6fed;
+  --green: #22a35d;
+  --red: #e34848;
+  --bg: #f4f6fb;
+  --card-border: #e7eaf3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  color: #1c1f2b;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+  background: var(--navy);
+  color: #fff;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar .brand .logo-badge {
+  background: var(--orange);
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.topbar .brand h1 { font-size: 18px; margin: 0; font-weight: 700; }
+.topbar .brand p { font-size: 12px; margin: 0; opacity: .75; }
+.topbar .user-box { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+
+/* ===== Sidebar ===== */
+.sidebar {
+  background: var(--navy);
+  min-height: 100vh;
+  padding-top: 12px;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(255,255,255,.75);
+  padding: 11px 20px;
+  text-decoration: none;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+}
+.sidebar a:hover { background: rgba(255,255,255,.06); color: #fff; }
+.sidebar a.active {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-left: 3px solid var(--orange);
+  font-weight: 600;
+}
+
+/* ===== Cards ===== */
+.card-panel {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.card-panel .panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy);
+}
+.step-badge {
+  background: var(--blue);
+  color: #fff;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .stat-value { font-size: 22px; font-weight: 800; color: var(--navy); }
+.stat-card .stat-label { font-size: 12px; color: #6b7280; }
+
+.badge-status-available, .badge-status-active, .badge-status-completed, .badge-status-paid { background: var(--green); color: #fff; }
+.badge-status-working, .badge-status-in-progress, .badge-status-partially-paid { background: var(--blue); color: #fff; }
+.badge-status-service, .badge-status-pending, .badge-status-cancelled, .badge-status-credit { background: var(--red); color: #fff; }
+
+.btn-brand-orange { background: var(--orange); border-color: var(--orange); color: #fff; }
+.btn-brand-blue { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn-brand-green { background: var(--green); border-color: var(--green); color: #fff; }
+
+table.table thead th {
+  background: #f8f9fc;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-bottom: 2px solid var(--card-border);
+}
+table.table td { font-size: 14px; vertical-align: middle; }
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--navy) 0%, #1b2f63 100%);
+}
+.login-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 40px;
+  width: 380px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}

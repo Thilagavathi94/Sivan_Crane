@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Trip Sheet ' + ${tripSheet.tripSheetNo}">Trip Sheet</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --brand: #1d4ed8;
+      --brand-dark: #1e3a8a;
+      --brand-light: #eef2ff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d9dee7;
+      --accent: #0ea5e9;
+      --good: #16a34a;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #e6ebf5 0%, #eef1f6 220px, #eef1f6 100%);
+      margin: 0;
+      padding: 28px 16px;
+      color: var(--ink);
+    }
+
+    .toolbar {
+      max-width: 800px;
+      margin: 0 auto 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .toolbar a, .toolbar button {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: var(--ink);
+      transition: box-shadow .15s ease, transform .15s ease;
+    }
+    .toolbar a:hover, .toolbar button:hover { box-shadow: 0 4px 10px rgba(15,23,42,.12); transform: translateY(-1px); }
+    .toolbar button {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(29,78,216,.25);
+    }
+
+    .sheet {
+      width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15,23,42,.12), 0 2px 6px rgba(15,23,42,.06);
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--accent) 100%);
+      color: #fff;
+    }
+    .brand { display: flex; gap: 14px; padding: 20px 20px 20px 22px; align-items: center; }
+    .logo {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 2px solid rgba(255,255,255,.55);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 22px; flex-shrink: 0;
+    }
+    h1 { margin: 0; font-size: 22px; letter-spacing: .6px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.15); }
+    .sub { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,.9); margin-top: 2px; }
+    .bill {
+      border-left: 1px solid rgba(255,255,255,.35);
+      display: grid; grid-template-rows: 1fr 1fr;
+      font-size: 12.5px;
+    }
+    .bill div { padding: 10px 14px; }
+    .bill div:first-child { border-bottom: 1px solid rgba(255,255,255,.3); }
+    .bill b { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; color: rgba(255,255,255,.75); font-weight:600; margin-bottom:2px; }
+    .bill span { font-size:15px; font-weight:700; }
+
+    .title {
+      text-align: center;
+      color: var(--brand-dark);
+      font-weight: 800;
+      margin: 20px 0 12px;
+      font-size: 15px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      position: relative;
+    }
+    .title::before, .title::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 26%;
+      height: 1px;
+      background: var(--line);
+    }
+    .title::before { left: 22px; }
+    .title::after { right: 22px; }
+
+    .line-grid {
+      margin: 0 20px;
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .line-grid .label {
+      padding: 8px 10px;
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+      font-size: 12.5px;
+    }
+    .line-grid .value { padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .line-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+
+    .section { display: grid; grid-template-columns: 1fr 230px; gap: 16px; margin: 16px 20px 0; }
+    .box { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .box-title {
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      text-align: center;
+      font-weight: 700;
+      padding: 8px;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 1px solid var(--line);
+    }
+    .work-lines { display: grid; grid-template-columns: 140px 1fr; }
+    .work-lines div { padding: 8px 10px; border-bottom: 1px dotted var(--line); font-size: 13px; }
+    .work-lines div:nth-child(odd) { color: var(--muted); font-weight: 600; }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border-bottom: 1px dotted var(--line); }
+    .work-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1px solid var(--line); border-radius: 16px;
+      padding: 4px 11px; font-size: 12.5px; color: var(--muted);
+    }
+    .work-chip .dot {
+      width: 13px; height: 13px; border-radius: 4px;
+      border: 2px solid #9ca3af; background: #fff; flex-shrink: 0;
+      position: relative;
+    }
+    .work-chip.on {
+      background: var(--brand-light); border-color: var(--brand); color: var(--brand-dark); font-weight: 700;
+    }
+    .work-chip.on .dot {
+      background: var(--good); border-color: var(--good);
+    }
+    .work-chip.on .dot::after {
+      content: "";
+      position: absolute; left: 3px; top: 0px;
+      width: 4px; height: 7px;
+      border: solid #fff; border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .work-notes { padding: 10px; min-height: 60px; font-size: 13px; white-space: pre-wrap; color: var(--ink); }
+
+    .charges .row {
+      display: grid; grid-template-columns: 1fr 90px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .charges .row div { padding: 9px 10px; }
+    .charges .row div:last-child { border-left: 1px solid var(--line); text-align: right; font-weight: 600; }
+    .charges .total { font-weight: 800; font-size: 15.5px; background: var(--brand-light); color: var(--brand-dark); }
+    .charges .total div:last-child { color: var(--brand-dark); }
+    .charges .row:last-child { border-bottom: none; }
+
+    .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 34px 20px 24px; font-size: 12.5px; }
+    .sign-box { border-top: 1px solid var(--line); padding-top: 8px; text-align: center; color: var(--muted); }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .sheet { width: 100%; border-radius: 0; box-shadow: none; }
+      .top, .box-title, .charges .total, .work-chip.on { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a th:href="@{/tripsheets}">&larr; Back</a>
+    <button onclick="window.print()">🖨 Print / Save PDF</button>
+  </div>
+
+  <div class="sheet">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>
+          <h1>SIVAN CRANE SERVICE</h1>
+          <div class="sub">Manual Handling, Loading &amp; Unloading, Safety Work, Hourly, Daily &amp; Monthly Works</div>
+          <div class="sub">186A, Krishnagiri Main Road, Near Kanthikadai Temple, Thokkampatti, Dharmapuri - 636 809</div>
+          <div class="sub">Call: 98427 72358, 88384 72771</div>
+        </div>
+      </div>
+      <div class="bill">
+        <div><b>Bill No</b><span th:text="${tripSheet.tripSheetNo}">TS-00001</span></div>
+        <div><b>Date</b><span th:text="${tripSheet.tripDate}">2026-07-24</span></div>
+      </div>
+    </div>
+
+    <div class="title">Trip Sheet</div>
+
+    <div class="line-grid">
+      <div class="label">Crane No</div><div class="value" th:text="${tripSheet.crane != null ? tripSheet.crane.registrationNo : '-'}">TN38CT7504</div>
+      <div class="label">Party's Name</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.name : '-'}">Customer</div>
+      <div class="label">Address</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.address : '-'}">Address</div>
+      <div class="label">Phone</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.phone : '-'}">Phone</div>
+      <div class="label">Place</div><div class="value" th:text="${tripSheet.location}">Place</div>
+    </div>
+
+    <div class="section">
+      <div class="box">
+        <div class="box-title">Work Details</div>
+        <div class="work-lines">
+          <div>Starting Time</div><div th:text="${tripSheet.startTime != null ? tripSheet.startTime : '-'}">-</div>
+          <div>Finishing Time</div><div th:text="${tripSheet.endTime != null ? tripSheet.endTime : '-'}">-</div>
+          <div>Total Running Hours</div><div th:text="${tripSheet.totalHours}">0</div>
+        </div>
+        <div class="checks">
+          <span class="work-chip" th:classappend="${tripSheet.workLifting} ? 'on' : ''"><span class="dot"></span>Lifting</span>
+          <span class="work-chip" th:classappend="${tripSheet.workLoading} ? 'on' : ''"><span class="dot"></span>Loading</span>
+          <span class="work-chip" th:classappend="${tripSheet.workUnloading} ? 'on' : ''"><span class="dot"></span>Unloading</span>
+          <span class="work-chip" th:classappend="${tripSheet.workOther} ? 'on' : ''"><span class="dot"></span>Other Work</span>
+        </div>
+        <div class="work-notes" th:text="${tripSheet.workDetails}">Work details</div>
+      </div>
+
+      <div class="box charges">
+        <div class="box-title">Hire Charges</div>
+        <div class="row"><div>Minimum 1 Hr Charges</div><div th:text="${#numbers.formatDecimal(tripSheet.minimumOneHourCharges,0,'COMMA',0,'POINT')}">0</div></div>
+        <div class="row"><div>Minimum 2 Hrs Charges</div><div th:text="${#numbers.formatDecimal(tripSheet.minimumTwoHourCharges,0,'COMMA',0,'POINT')}">0</div></div>
+        <div class="row"><div>Additional Hour</div><div th:text="${#numbers.formatDecimal(tripSheet.additionalCharges,0,'COMMA',0,'POINT')}">0</div></div>
+        <div class="row total"><div>Total</div><div th:text="${#numbers.formatDecimal(tripSheet.hireChargesTotal,0,'COMMA',0,'POINT')}">0</div></div>
+      </div>
+    </div>
+
+    <div class="signs">
+      <div class="sign-box">Party's Signature</div>
+      <div class="sign-box">For Sivan Crane Service</div>
+    </div>
+  </div>
+</body>
+</html>

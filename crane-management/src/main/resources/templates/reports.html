@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .print-title { display:none; }
+    @media print {
+      body { background:#fff !important; }
+      .topbar, .sidebar, .no-print { display:none !important; }
+      .d-flex { display:block !important; }
+      .flex-grow-1 { padding:0 !important; width:100% !important; }
+      .row { display:block !important; }
+      .col-md-3, .col-md-6 { width:100% !important; max-width:100% !important; }
+      .card-panel, .stat-card { border:0 !important; box-shadow:none !important; padding:0 !important; margin-bottom:12px !important; }
+      .stat-card { display:inline-block; width:24%; text-align:center; border:1px solid #999 !important; padding:8px !important; }
+      .print-title { display:block; text-align:center; margin-bottom:14px; }
+      .table-responsive { overflow:visible !important; }
+      table { width:100% !important; border-collapse:collapse !important; }
+      th, td { border:1px solid #444 !important; padding:5px 7px !important; font-size:11px !important; }
+      thead th { background:#e5e7eb !important; color:#000 !important; }
+      a { color:#000 !important; text-decoration:none !important; }
+      .panel-title { font-size:14px !important; margin:10px 0 6px !important; }
+    }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('reports')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+    <div class="print-title">
+      <h2>SIVAN CRANE SERVICE</h2>
+      <h4 th:text="'Monthly Report - ' + ${month}">Monthly Report</h4>
+    </div>
+
+    <div class="card-panel mb-3 no-print">
+      <form th:action="@{/reports}" method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Report Month</label>
+          <input type="month" name="month" th:value="${month}" class="form-control">
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-brand-blue w-100">Show</button>
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-outline-secondary w-100" onclick="window.print()">PDF</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalIncome,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Income</div></div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalExpenses,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Expenses</div></div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(netProfit,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Profit</div></div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalPending,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Pending</div></div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">Date-wise Month Report</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Date</th><th>Income</th><th>Expense</th><th>Profit</th></tr></thead>
+              <tbody>
+                <tr th:each="d : ${dailySummaries}">
+                  <td th:text="${d.date}">2026-07-21</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(d.income,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(d.expense,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td class="fw-bold" th:text="'₹' + ${#numbers.formatDecimal(d.profit,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(dailySummaries)}"><td colspan="4" class="text-center text-muted">No records for this month</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">Crane Profit and Expenses</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Crane</th><th>Trips</th><th>Income</th><th>Expense</th><th>Profit</th></tr></thead>
+              <tbody>
+                <tr th:each="c : ${craneSummaries}">
+                  <td><a th:href="@{'/cranes/' + ${c.crane.id} + '/trip-records'}" th:text="${c.crane.craneNo}">KCN-01</a></td>
+                  <td th:text="${c.tripCount}">0</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(c.income,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(c.expense,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td class="fw-bold" th:text="'₹' + ${#numbers.formatDecimal(c.profit,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(craneSummaries)}"><td colspan="5" class="text-center text-muted">No cranes yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">Income Records</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Invoice No</th><th>Customer</th><th>Date</th><th>Received</th></tr></thead>
+              <tbody>
+                <tr th:each="i : ${invoices}">
+                  <td th:text="${i.invoiceNo}">INV</td>
+                  <td th:text="${i.customer.name}">Customer</td>
+                  <td th:text="${i.invoiceDate}">2026-07-21</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(i.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(invoices)}"><td colspan="4" class="text-center text-muted">No income records</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">Expense Records</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Date</th><th>Category</th><th>Crane</th><th>Driver</th><th>Amount</th></tr></thead>
+              <tbody>
+                <tr th:each="e : ${expenses}">
+                  <td th:text="${e.expenseDate}">2026-07-21</td>
+                  <td th:text="${e.category}">Diesel</td>
+                  <td th:text="${e.crane != null ? e.crane.craneNo : '-'}">-</td>
+                  <td th:text="${e.driver != null ? e.driver.name : '-'}">-</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(e.amount,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(expenses)}"><td colspan="5" class="text-center text-muted">No expenses</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">Driver Expense Records</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Driver</th><th>Date</th><th>Type</th><th>Amount</th></tr></thead>
+              <tbody>
+                <tr th:each="e : ${driverExpenses}">
+                  <td th:text="${e.driver.name}">Driver</td>
+                  <td th:text="${e.expenseDate}">2026-07-21</td>
+                  <td th:text="${e.category}">Driver Advance</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(e.amount,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(driverExpenses)}"><td colspan="4" class="text-center text-muted">No driver expenses</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

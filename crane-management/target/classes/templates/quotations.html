@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Quotation - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('quotations')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">📝 <span th:text="${quotation.id != null ? 'Edit Quotation' : 'New Quotation'}">New Quotation</span></div>
+          <form th:action="@{/quotations/save}" th:object="${quotation}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{quotationNo}">
+            <div class="row">
+              <div class="col-7 mb-2">
+                <label class="form-label">Customer *</label>
+                <select th:field="*{customer}" class="form-select" required>
+                  <option value="">Select Customer</option>
+                  <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}">Customer</option>
+                </select>
+              </div>
+              <div class="col-5 mb-2">
+                <label class="form-label">Date</label>
+                <input type="date" th:field="*{quotationDate}" class="form-control">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Billing Basis</label>
+              <select th:field="*{billingBasis}" class="form-select">
+                <option value="Daily">Daily Basis</option>
+                <option value="Monthly">Monthly Basis</option>
+              </select>
+            </div>
+
+            <label class="form-label mt-2 fw-bold">Items (per crane)</label>
+            <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Hours/Units</th>
+                  <th>Rate</th>
+                  <th>Addl. Hours</th>
+                  <th>Addl. Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="item, iter : *{items}">
+                  <td><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="e.g. 17 Ton Hydra Crane"></td>
+                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm"></td>
+                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].ratePerHour}" class="form-control form-control-sm"></td>
+                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].additionalHours}" class="form-control form-control-sm" placeholder="0" title="Extra/overtime hours for this crane"></td>
+                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalRate}" class="form-control form-control-sm" placeholder="Same as rate" title="Leave blank to use the normal rate"></td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Tip: use "Addl. Hours" for any extra/overtime hours worked by that crane beyond the base hours. Leave "Addl. Rate" blank to bill it at the same rate as the crane.</p>
+
+            <div class="row">
+              <div class="col-12 mb-2">
+                <label class="form-label">GST %</label>
+                <input type="number" step="0.01" th:field="*{gstPercent}" class="form-control">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Notes</label>
+              <textarea th:field="*{notes}" class="form-control" rows="3" placeholder="Type extra notes or conditions"></textarea>
+            </div>
+            <button type="submit" class="btn btn-brand-orange w-100 mt-2">Save &amp; Generate Quotation</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">All Quotations</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Quo No</th><th>Customer</th><th>Date</th><th>Basis</th><th>Total</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr th:each="q : ${quotations}">
+                  <td th:text="${q.quotationNo}">QUO-00001</td>
+                  <td th:text="${q.customer.name}">Customer</td>
+                  <td th:text="${q.quotationDate}">2026-07-21</td>
+                  <td th:text="${q.billingBasis}">Daily</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(q.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td>
+                    <a th:href="@{'/quotations/edit/' + ${q.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a th:href="@{'/quotations/print/' + ${q.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">🖨️ PDF</a>
+                    <a th:href="@{'/quotations/convert-to-booking/' + ${q.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Create a new Booking from this quotation?')">Booking</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(quotations)}"><td colspan="6" class="text-center text-muted">No quotations yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

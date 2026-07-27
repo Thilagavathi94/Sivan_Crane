@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>GST Invoice - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('invoices')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title"><span th:text="${invoice.id != null ? 'Edit Invoice' : 'New GST Invoice'}">New GST Invoice</span></div>
+
+          <div class="alert alert-info py-2" style="font-size:13px;" th:if="${invoice.booking != null}">
+            Generated from Booking <b th:text="${invoice.booking.bookingNo}"></b>. All trip sheet amounts for this booking are loaded below.
+          </div>
+
+          <form th:action="@{/invoices/save}" th:object="${invoice}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{invoiceNo}">
+
+            <div class="mb-2">
+              <label class="form-label">Booking No *</label>
+              <select class="form-select" onchange="if(this.value) window.location.href='/invoices/from-booking/' + this.value">
+                <option value="">Select Booking No</option>
+                <option th:each="b : ${bookings}"
+                        th:value="${b.id}"
+                        th:selected="${invoice.booking != null and invoice.booking.id == b.id}"
+                        th:text="${b.bookingNo} + ' - ' + ${b.customer.name}">BK-00001</option>
+              </select>
+              <input type="hidden" th:field="*{booking}">
+            </div>
+
+            <div class="row">
+              <div class="col-7 mb-2">
+                <label class="form-label">Customer *</label>
+                <select th:field="*{customer}" class="form-select" required>
+                  <option value="">Select Customer</option>
+                  <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}">Customer</option>
+                </select>
+              </div>
+              <div class="col-5 mb-2">
+                <label class="form-label">Invoice Date</label>
+                <input type="date" th:field="*{invoiceDate}" class="form-control">
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label">Trip Sheet Nos</label>
+              <input type="hidden" th:field="*{tripSheet}">
+              <div class="form-control" style="height:auto; min-height:42px;">
+                <span th:if="${invoice.booking == null}" class="text-muted">Select Booking No First</span>
+                <span th:if="${invoice.booking != null}" th:each="item, iter : *{items}">
+                  <span th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</span><span th:if="${!iter.last}">, </span>
+                </span>
+              </div>
+            </div>
+
+            <label class="form-label mt-2 fw-bold">Trip Sheet Amounts</label>
+            <table class="table table-sm">
+              <thead><tr><th>Trip Sheet</th><th>Units</th><th>Amount</th></tr></thead>
+              <tbody>
+                <tr th:each="item, iter : *{items}">
+                  <td><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="Trip Sheet No"></td>
+                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm" placeholder="1"></td>
+                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].rate}" class="form-control form-control-sm" placeholder="Amount"></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="row">
+              <div class="col-4 mb-2">
+                <label class="form-label">CGST %</label>
+                <input type="number" step="0.01" th:field="*{cgstPercent}" class="form-control">
+              </div>
+              <div class="col-4 mb-2">
+                <label class="form-label">SGST %</label>
+                <input type="number" step="0.01" th:field="*{sgstPercent}" class="form-control">
+              </div>
+              <div class="col-4 mb-2">
+                <label class="form-label">Received Amt</label>
+                <input type="number" step="0.01" th:field="*{receivedAmount}" class="form-control">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-brand-green w-100 mt-2">Save &amp; Generate GST Invoice</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card-panel">
+          <div class="panel-title">All Invoices</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Invoice No</th><th>Customer</th><th>Date</th><th>Total</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr th:each="i : ${invoices}">
+                  <td th:text="${i.invoiceNo}">INV-2026-00001</td>
+                  <td th:text="${i.customer.name}">Customer</td>
+                  <td th:text="${i.invoiceDate}">2026-07-21</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td>
+                    <a th:href="@{'/invoices/edit/' + ${i.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a th:href="@{'/invoices/print/' + ${i.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">PDF</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(invoices)}"><td colspan="5" class="text-center text-muted">No invoices yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

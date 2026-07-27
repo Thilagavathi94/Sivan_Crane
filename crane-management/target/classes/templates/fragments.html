@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="topbar">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo-badge">&#127959;</div>
+      <div>
+        <h1>SIVAN CRANE SERVICE</h1>
+        <p>Crane Management &amp; GST Billing Software</p>
+      </div>
+    </div>
+    <div class="user-box">
+      <span>Welcome, Admin</span>
+    </div>
+  </div>
+</div>
+
+<div th:fragment="sidebar(active)">
+  <div class="sidebar">
+    <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active' : ''">Dashboard</a>
+    <a th:href="@{/customers}" th:classappend="${active == 'customers'} ? 'active' : ''">Customers</a>
+    <a th:href="@{/cranes}" th:classappend="${active == 'cranes'} ? 'active' : ''">Cranes</a>
+    <a th:href="@{/drivers}" th:classappend="${active == 'drivers'} ? 'active' : ''">Drivers</a>
+    <a th:href="@{/bookings}" th:classappend="${active == 'bookings'} ? 'active' : ''">Bookings</a>
+    <a th:href="@{/tripsheets}" th:classappend="${active == 'tripsheets'} ? 'active' : ''">Trip Sheet</a>
+    <a th:href="@{/quotations}" th:classappend="${active == 'quotations'} ? 'active' : ''">Quotation</a>
+    <a th:href="@{/invoices}" th:classappend="${active == 'invoices'} ? 'active' : ''">GST Invoice</a>
+    <a th:href="@{/payments}" th:classappend="${active == 'payments'} ? 'active' : ''">Payments</a>
+    <a th:href="@{/expenses}" th:classappend="${active == 'expenses'} ? 'active' : ''">Expenses</a>
+    <a th:href="@{/reports}" th:classappend="${active == 'reports'} ? 'active' : ''">Reports</a>
+  </div>
+</div>
+
+</body>
+</html>

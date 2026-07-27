@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Quotation ' + ${quotation.quotationNo}">Quotation</title>
+  <style>
+    :root {
+      --navy: #0f1b3d;
+      --orange: #f7941d;
+      --border: #d7dce8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      color: #1c1f2b;
+      background: #eef0f5;
+      margin: 0;
+      padding: 24px;
+    }
+    .sheet {
+      max-width: 880px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .toolbar {
+      max-width: 880px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .toolbar button, .toolbar a {
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-print { background: var(--orange); color: #fff; }
+    .btn-back { background: #fff; color: var(--navy); border: 1px solid var(--border) !important; }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid var(--orange);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .head .brand { display: flex; align-items: center; gap: 12px; }
+    .head .brand .badge {
+      width: 50px; height: 50px; border-radius: 10px;
+      background: var(--navy); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .head .brand h1 { margin: 0; font-size: 19px; color: var(--navy); }
+    .head .brand p { margin: 2px 0 0 0; font-size: 12px; color: #6b7280; }
+    .head .doc-title { text-align: right; }
+    .head .doc-title h2 { margin: 0; color: var(--orange); font-size: 22px; letter-spacing: 1px; }
+    .head .doc-title p { margin: 2px 0 0 0; font-size: 13px; color: #6b7280; }
+
+    .meta { display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 13px; }
+    .meta .block h4 { margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #9aa1b4; letter-spacing: .5px; }
+    .meta .block p { margin: 0; line-height: 1.5; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { padding: 10px 8px; font-size: 13px; text-align: left; }
+    thead th { background: var(--navy); color: #fff; font-size: 12px; text-transform: uppercase; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    td.num, th.num { text-align: right; }
+
+    .totals { width: 280px; margin-left: auto; font-size: 14px; }
+    .totals div { display: flex; justify-content: space-between; padding: 6px 0; }
+    .totals .grand { border-top: 2px solid var(--navy); font-weight: 700; font-size: 16px; color: var(--navy); margin-top: 4px; }
+
+    .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; }
+    .footer .sign { text-align: center; }
+    .footer .sign .line { margin-top: 40px; border-top: 1px solid #333; width: 160px; }
+
+    .note { margin-top: 24px; font-size: 12px; color: #6b7280; border-top: 1px dashed var(--border); padding-top: 12px; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .sheet { box-shadow: none; padding: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <a th:href="@{/quotations}" class="btn-back">&larr; Back</a>
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <div class="sheet">
+    <div class="head">
+      <div class="brand">
+        <div class="badge">🏗️</div>
+        <div>
+          <h1>SIVAN CRANE SERVICE</h1>
+          <p>Crane Hiring &amp; GST Billing Services</p>
+          <!-- Update with your real business details -->
+          <p>GSTIN: 33XXXXX0000X1ZX &nbsp;|&nbsp; Ph: +91 98765 43210</p>
+        </div>
+      </div>
+      <div class="doc-title">
+        <h2>QUOTATION</h2>
+        <p th:text="${quotation.quotationNo}">QUO-00001</p>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="block">
+        <h4>Quotation To</h4>
+        <p><b th:text="${quotation.customer.name}">Customer Name</b></p>
+        <p th:if="${quotation.customer.address}" th:text="${quotation.customer.address}">Address</p>
+        <p th:if="${quotation.customer.phone}" th:text="'Ph: ' + ${quotation.customer.phone}">Phone</p>
+        <p th:if="${quotation.customer.gstNumber}" th:text="'GSTIN: ' + ${quotation.customer.gstNumber}">GSTIN</p>
+      </div>
+      <div class="block" style="text-align:right;">
+        <h4>Details</h4>
+        <p><b>Date:</b> <span th:text="${quotation.quotationDate}">2026-07-23</span></p>
+        <p><b>Basis:</b> <span th:text="${quotation.billingBasis}">Daily</span></p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="num">Hours/Units</th>
+          <th class="num">Rate</th>
+          <th class="num">Amount</th>
+          <th class="num">Addl. Hours</th>
+          <th class="num">Addl. Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="item : ${quotation.items}">
+          <td th:text="${item.description}">17 Ton Hydra Crane</td>
+          <td class="num" th:text="${item.hoursOrUnits}">8</td>
+          <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.ratePerHour,0,'COMMA',2,'POINT')}">₹0.00</td>
+          <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
+          <td class="num" th:text="${item.additionalHours != null and item.additionalHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.additionalHours : '-'}">-</td>
+          <td class="num">
+            <span th:if="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
+                  th:text="'₹' + ${#numbers.formatDecimal(item.additionalAmount,0,'COMMA',2,'POINT')}">₹0.00</span>
+            <span th:unless="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div><span>Subtotal</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.subtotal,0,'COMMA',2,'POINT')}">₹0.00</span></div>
+      <div><span th:text="'GST (' + ${quotation.gstPercent} + '%)'">GST</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.gstAmount,0,'COMMA',2,'POINT')}">₹0.00</span></div>
+      <div class="grand"><span>Total</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.totalAmount,0,'COMMA',2,'POINT')}">₹0.00</span></div>
+    </div>
+
+    <div class="note">
+      This quotation is valid for 15 days from the date of issue. Prices are subject to change based on final site conditions and work duration.
+      <div th:if="${quotation.notes != null and !#strings.isEmpty(quotation.notes)}" style="margin-top:10px;">
+        <b>Notes:</b> <span th:text="${quotation.notes}">Additional notes</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <p>Thank you for considering Sivan Crane Service.</p>
+      </div>
+      <div class="sign">
+        <div class="line"></div>
+        <p>Authorized Signatory</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

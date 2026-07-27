@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Bookings - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('bookings')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div class="row g-3">
+      <div class="col-md-5">
+        <div class="card-panel">
+          <div class="panel-title">📅 <span th:text="${booking.id != null ? 'Edit Booking' : 'New Booking'}">New Booking</span></div>
+          <form th:action="@{/bookings/save}" th:object="${booking}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{bookingNo}">
+            <div class="mb-2">
+              <label class="form-label">Customer *</label>
+              <select th:field="*{customer}" class="form-select" required>
+                <option value="">Select Customer</option>
+                <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}">Customer</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Booking Date *</label>
+              <input type="date" th:field="*{bookingDate}" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Description</label>
+              <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-brand-orange flex-grow-1">Save Booking</button>
+              <a th:href="@{/bookings}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div class="card-panel">
+          <div class="panel-title">Recent Bookings</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Booking No</th><th>Customer</th><th>Date</th><th>Description</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr th:each="b : ${bookings}">
+                  <td th:text="${b.bookingNo}">BK-00001</td>
+                  <td th:text="${b.customer.name}">Customer</td>
+                  <td th:text="${b.bookingDate}">2026-07-21</td>
+                  <td th:text="${b.description}">Description</td>
+                  <td>
+                    <a th:href="@{'/bookings/edit/' + ${b.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a th:if="${!b.convertedToTripSheet}" th:href="@{'/tripsheets/from-booking/' + ${b.id}}" class="btn btn-sm btn-brand-blue">→ Trip Sheet</a>
+                    <span th:if="${b.convertedToTripSheet}" class="badge bg-secondary">Trip Sheet Created</span>
+                    <a th:href="@{'/bookings/delete/' + ${b.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this booking?')">Delete</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(bookings)}"><td colspan="5" class="text-center text-muted">No bookings yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

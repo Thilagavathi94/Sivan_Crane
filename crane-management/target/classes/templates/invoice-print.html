@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="'Invoice ' + ${invoice.invoiceNo}">Invoice</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --brand: #1d4ed8;
+      --brand-dark: #1e3a8a;
+      --brand-light: #eef2ff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d9dee7;
+      --line-strong: #1f2937;
+      --bg: #eef1f6;
+      --paper: #ffffff;
+      --accent: #0ea5e9;
+      --good: #16a34a;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #e6ebf5 0%, #eef1f6 260px, #eef1f6 100%);
+      margin: 0;
+      padding: 28px 16px;
+    }
+
+    .toolbar {
+      max-width: 860px;
+      margin: 0 auto 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .toolbar a, .toolbar button {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: var(--ink);
+      transition: box-shadow .15s ease, transform .15s ease;
+    }
+    .toolbar a:hover, .toolbar button:hover { box-shadow: 0 4px 10px rgba(15,23,42,.12); transform: translateY(-1px); }
+    .toolbar button {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(29,78,216,.25);
+    }
+
+    .sheet {
+      width: 860px;
+      margin: 0 auto;
+      background: var(--paper);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15,23,42,.12), 0 2px 6px rgba(15,23,42,.06);
+    }
+
+    .head {
+      text-align: center;
+      padding: 26px 24px 18px;
+      background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--accent) 100%);
+      color: #fff;
+      position: relative;
+    }
+    .head::after {
+      content: "";
+      display: block;
+      height: 4px;
+      margin-top: 18px;
+      background: rgba(255,255,255,.35);
+      border-radius: 2px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 27px;
+      letter-spacing: 1px;
+      font-weight: 800;
+      text-shadow: 0 1px 2px rgba(0,0,0,.15);
+    }
+    .sub { font-size: 12.5px; margin-top: 6px; color: rgba(255,255,255,.9); }
+    .gst {
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: #fff;
+      background: rgba(255,255,255,.18);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: .4px;
+    }
+
+    .bill-row {
+      display: grid;
+      grid-template-columns: 1fr 230px;
+      border-bottom: 1px solid var(--line);
+    }
+    .customer { padding: 18px 22px; min-height: 108px; }
+    .customer > div:first-child {
+      color: var(--brand);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .customer div { margin-bottom: 3px; font-size: 14px; }
+
+    .right-box { border-left: 1px solid var(--line); background: #fafbff; }
+    .right-title {
+      background: var(--brand-dark);
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      letter-spacing: .6px;
+    }
+    .right-line {
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .right-line b { color: var(--ink); font-size: 15px; }
+
+    .service-wrap { padding: 20px 22px 0; }
+    .service {
+      width: 100%;
+      max-width: 460px;
+      margin: 0 auto 6px;
+      border-collapse: separate;
+      border-spacing: 0;
+      text-align: center;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .service th {
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      padding: 9px;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .service td { padding: 9px; border-top: 1px solid var(--line); font-size: 14px; }
+
+    .section-title {
+      text-align: center;
+      color: var(--brand-dark);
+      font-weight: 800;
+      margin: 22px 0 12px;
+      font-size: 15px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      position: relative;
+    }
+    .section-title::before, .section-title::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 26%;
+      height: 1px;
+      background: var(--line);
+    }
+    .section-title::before { left: 22px; }
+    .section-title::after { right: 22px; }
+
+    .work { display: grid; grid-template-columns: 1fr 260px; gap: 16px; padding: 0 22px; }
+    .details { border-collapse: collapse; width: 100%; }
+    .details td { padding: 7px 4px; font-size: 13.5px; }
+    .details td:first-child { width: 150px; font-weight: 700; color: var(--muted); }
+
+    .trip-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 13.5px;
+    }
+    .trip-table th {
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      padding: 8px;
+      text-align: right;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .trip-table th:first-child, .trip-table td:first-child { text-align: left; }
+    .trip-table td { padding: 8px; text-align: right; border-top: 1px solid var(--line); }
+    .trip-table tbody tr:nth-child(even) { background: #f8fafc; }
+
+    .charges { display: grid; grid-template-columns: 1fr 260px; gap: 22px; margin: 6px 22px 0; align-items: start; }
+    .hire-lines { border-collapse: collapse; width: 100%; }
+    .hire-lines td { padding: 7px 4px; font-size: 13.5px; }
+    .hire-lines td:first-child { width: 220px; font-weight: 600; color: var(--muted); }
+
+    .totals {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .totals td { padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .totals td:last-child { text-align: right; font-weight: 600; }
+    .totals tr:last-of-type td { border-bottom: none; }
+    .totals .grand {
+      background: var(--brand-light);
+    }
+    .totals .grand td {
+      font-weight: 800;
+      border-top: 2px solid var(--brand);
+      font-size: 16px;
+      color: var(--brand-dark);
+    }
+
+    .words {
+      margin: 20px 22px 0;
+      background: #fafbff;
+      border: 1px dashed #b9c4dd;
+      border-radius: 8px;
+      padding: 14px 16px;
+      min-height: 20px;
+      font-size: 13.5px;
+    }
+    .words b { color: var(--brand-dark); }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin: 28px 22px 0;
+      border-top: 1px solid var(--line);
+    }
+    .footer div { padding: 22px 10px 24px; min-height: 80px; font-size: 13.5px; color: var(--muted); }
+    .footer div:last-child {
+      border-left: 1px solid var(--line);
+      text-align: center;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .manager { margin-top: 42px; font-weight: 600; }
+
+    .sheet-bottom-pad { height: 22px; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar { display: none; }
+      .sheet { width: 100%; border-radius: 0; box-shadow: none; }
+      .head { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .right-title, .service th, .trip-table th, .totals .grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a th:href="@{/invoices}">&larr; Back</a>
+    <button onclick="window.print()">🖨 Print / Save PDF</button>
+  </div>
+
+  <div class="sheet">
+    <div class="head">
+      <h1>SIVAN CRANE SERVICES</h1>
+      <div class="sub">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</div>
+      <div class="gst">GSTIN : 33XXXXX0000X1ZX</div>
+    </div>
+
+    <div class="bill-row">
+      <div class="customer">
+        <div>Customer Address</div>
+        <div th:text="${invoice.customer.name}" style="font-weight:700; font-size:15px;">Customer Name</div>
+        <div th:if="${invoice.customer.address}" th:text="${invoice.customer.address}">Address</div>
+        <div th:if="${invoice.customer.phone}" th:text="'Phone: ' + ${invoice.customer.phone}">Phone</div>
+        <div th:if="${invoice.customer.gstNumber}" style="margin-top:16px;" th:text="'Party GSTIN: ' + ${invoice.customer.gstNumber}">Party GSTIN</div>
+      </div>
+      <div class="right-box">
+        <div class="right-title">CASH / CREDIT BILL</div>
+        <div class="right-line">No <br><b th:text="${invoice.invoiceNo}">INV-2026-00001</b></div>
+        <div class="right-line">Date <br><b th:text="${invoice.invoiceDate}">2026-07-24</b></div>
+      </div>
+    </div>
+
+    <div class="service-wrap">
+      <table class="service">
+        <thead><tr><th>Description of Service</th><th>SAC</th></tr></thead>
+        <tbody><tr><td>Renting Crane Service</td><td>9973</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Work Details</div>
+    <div class="work">
+      <table class="details">
+        <tr><td>Crane Capacity</td><td th:text="${invoice.tripSheet != null and invoice.tripSheet.crane != null ? invoice.tripSheet.crane.capacity : '-'}">-</td></tr>
+        <tr>
+          <td>Trip Sheet No.</td>
+          <td>
+            <span th:each="item, iter : ${invoice.items}">
+              <span th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</span><span th:if="${!iter.last}">, </span>
+            </span>
+          </td>
+        </tr>
+        <tr><td>Date</td><td th:text="${invoice.invoiceDate}">2026-07-24</td></tr>
+        <tr><td>Running Hours</td><td th:text="${invoice.tripSheet != null ? invoice.tripSheet.totalHours : '-'}">-</td></tr>
+      </table>
+
+      <table class="trip-table">
+        <thead><tr><th>Trip</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr th:each="item : ${invoice.items}">
+            <td th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</td>
+            <td th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',0,'POINT')}">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Hire Charges</div>
+    <div class="charges">
+      <table class="hire-lines">
+        <tr><td>1. Minimum 1 Hrs Charges</td><td>:</td></tr>
+        <tr><td>2. Minimum 2 Hrs Charges</td><td>:</td></tr>
+        <tr><td>3. Additional Hrs</td><td>:</td></tr>
+        <tr><td>4. Betta</td><td>:</td></tr>
+      </table>
+      <table class="totals">
+        <tr><td>Total</td><td th:text="${#numbers.formatDecimal(invoice.taxableAmount,0,'COMMA',2,'POINT')}">0</td></tr>
+        <tr><td>CGST</td><td th:text="${#numbers.formatDecimal(invoice.cgstAmount,0,'COMMA',2,'POINT')}">0</td></tr>
+        <tr><td>SGST</td><td th:text="${#numbers.formatDecimal(invoice.sgstAmount,0,'COMMA',2,'POINT')}">0</td></tr>
+        <tr><td>IGST</td><td>-</td></tr>
+        <tr class="grand"><td>Grand Total</td><td th:text="${#numbers.formatDecimal(invoice.totalAmount,0,'COMMA',2,'POINT')}" id="grandTotalValue" th:attr="data-amount=${invoice.totalAmount}">0</td></tr>
+      </table>
+    </div>
+
+    <div class="words">
+      <b>Rupees:</b> <span id="amountWords"></span>
+    </div>
+
+    <div class="footer">
+      <div></div>
+      <div>
+        For SIVAN CRANE SERVICES
+        <div class="manager">Manager</div>
+      </div>
+    </div>
+    <div class="sheet-bottom-pad"></div>
+  </div>
+
+  <script>
+    function numberToWordsIndian(num) {
+      num = Math.round(num);
+      if (num === 0) return "Zero Only";
+      var ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+        "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      var tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+      function two(n) { return n < 20 ? ones[n] : (tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "")).trim(); }
+      function three(n) { var h = Math.floor(n / 100), r = n % 100, out = h ? ones[h] + " Hundred" : ""; return r ? (out ? out + " " : "") + two(r) : out; }
+      var crore = Math.floor(num / 10000000); num %= 10000000;
+      var lakh = Math.floor(num / 100000); num %= 100000;
+      var thousand = Math.floor(num / 1000); num %= 1000;
+      var parts = [];
+      if (crore) parts.push(three(crore) + " Crore");
+      if (lakh) parts.push(three(lakh) + " Lakh");
+      if (thousand) parts.push(three(thousand) + " Thousand");
+      if (num) parts.push(three(num));
+      return parts.join(" ") + " Only";
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      var total = document.getElementById("grandTotalValue");
+      var words = document.getElementById("amountWords");
+      if (total && words) words.textContent = numberToWordsIndian(parseFloat(total.getAttribute("data-amount")) || 0);
+    });
+  </script>
+</body>
+</html>

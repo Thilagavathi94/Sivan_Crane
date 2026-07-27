@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Payments - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div style="width:220px; flex-shrink:0;">
+    <div th:replace="~{fragments :: sidebar('payments')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div class="row g-3">
+      <div class="col-md-5">
+        <div class="card-panel">
+          <div class="panel-title">💰 Record Payment</div>
+          <form th:action="@{/payments/save}" th:object="${payment}" method="post">
+            <div class="mb-2">
+              <label class="form-label">Invoice *</label>
+              <select th:field="*{invoice}" class="form-select" required>
+                <option value="">Select Invoice</option>
+                <option th:each="i : ${pendingInvoices}" th:value="${i.id}"
+                        th:text="${i.invoiceNo} + ' - ' + ${i.customer.name} + ' (Balance ₹' + ${#numbers.formatDecimal(i.balanceAmount,0,'COMMA',2,'POINT')} + ')'">Invoice</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Payment Date</label>
+              <input type="date" th:field="*{paymentDate}" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Received Amount *</label>
+              <input type="number" step="0.01" th:field="*{receivedAmount}" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Payment Mode</label>
+              <select th:field="*{paymentMode}" class="form-select">
+                <option value="Cash">Cash</option>
+                <option value="Bank">Bank</option>
+                <option value="UPI">UPI</option>
+                <option value="Cheque">Cheque</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Payment Type</label>
+              <select th:field="*{paymentType}" class="form-select">
+                <option value="Paid">Paid</option>
+                <option value="Credit">Credit</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Notes</label>
+              <textarea th:field="*{notes}" class="form-control" rows="2" placeholder="e.g. Part Payment"></textarea>
+            </div>
+            <button type="submit" class="btn btn-brand-green w-100">Save Payment</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div class="card-panel">
+          <div class="panel-title">Payment History</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Mode</th><th>Type</th></tr></thead>
+              <tbody>
+                <tr th:each="p : ${payments}">
+                  <td th:text="${p.invoice.invoiceNo}">INV-2026-00001</td>
+                  <td th:text="${p.paymentDate}">2026-07-21</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(p.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td th:text="${p.paymentMode}">Cash</td>
+                  <td><span class="badge" th:classappend="'badge-status-' + ${#strings.toLowerCase(p.paymentType)}" th:text="${p.paymentType}">Paid</span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(payments)}"><td colspan="5" class="text-center text-muted">No payments recorded yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="panel-title">Pending / Outstanding Invoices</div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Invoice No</th><th>Customer</th><th>Total</th><th>Received</th><th>Balance</th></tr></thead>
+              <tbody>
+                <tr th:each="i : ${pendingInvoices}">
+                  <td th:text="${i.invoiceNo}">INV-2026-00001</td>
+                  <td th:text="${i.customer.name}">Customer</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(i.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                  <td class="fw-bold text-danger" th:text="'₹' + ${#numbers.formatDecimal(i.balanceAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(pendingInvoices)}"><td colspan="5" class="text-center text-muted">All invoices are fully paid 🎉</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
