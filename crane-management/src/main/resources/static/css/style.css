@@ -117,6 +117,83 @@ table.table thead th {
 }
 table.table td { font-size: 14px; vertical-align: middle; }
 
+/* ===== Mobile menu toggle ===== */
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sidebar-backdrop { display: none; }
+
+/* ===== Responsive layout (tablet & mobile) ===== */
+@media (max-width: 900px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+
+  .menu-toggle { display: inline-block; }
+
+  .topbar { padding: 10px 14px; }
+  .topbar .brand { gap: 8px; min-width: 0; }
+  .topbar .brand .logo-badge { width: 34px; height: 34px; font-size: 16px; border-radius: 8px; }
+  .topbar .brand h1 { font-size: 14px; white-space: nowrap; }
+  .topbar .brand p { display: none; }
+  .topbar .user-box { font-size: 12px; white-space: nowrap; }
+
+  /* Sidebar becomes an off-canvas drawer */
+  .sidebar-col { width: 0 !important; min-width: 0 !important; flex-shrink: 0; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 240px;
+    height: 100vh;
+    min-height: 0;
+    padding-top: 64px;
+    overflow-y: auto;
+    z-index: 1050;
+    transition: left .25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.35);
+  }
+  .sidebar.show { left: 0; }
+  .sidebar-backdrop.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1040;
+  }
+
+  /* Main content breathing room */
+  .flex-grow-1 { min-width: 0; }
+  .flex-grow-1.p-4 { padding: 14px !important; }
+  .flex-grow-1.p-3 { padding: 10px !important; }
+
+  .row.g-3 { row-gap: 10px !important; }
+  .stat-card { padding: 12px; }
+  .stat-card .stat-value { font-size: 18px; }
+  .stat-card .stat-label { font-size: 11px; }
+
+  .card-panel { padding: 12px; margin-bottom: 14px; }
+  .card-panel .panel-title { font-size: 14px; margin-bottom: 10px; }
+
+  table.table thead th { font-size: 11px; white-space: nowrap; }
+  table.table td { font-size: 12.5px; white-space: nowrap; }
+
+  .login-card { width: 92vw; padding: 26px 20px; }
+}
+
+@media (max-width: 480px) {
+  .topbar .brand h1 { font-size: 12.5px; }
+  .stat-card .stat-value { font-size: 16px; }
+  .card-panel .panel-title { font-size: 13px; }
+}
+
 .login-wrapper {
   min-height: 100vh;
   display: flex;

@@ -4,17 +4,36 @@
 
 <div th:fragment="topbar">
   <div class="topbar">
-    <div class="brand">
-      <div class="logo-badge">&#127959;</div>
-      <div>
-        <h1>SIVAN CRANE SERVICE</h1>
-        <p>Crane Management &amp; GST Billing Software</p>
+    <div class="topbar-left">
+      <button type="button" class="menu-toggle" onclick="toggleSidebar()" aria-label="Open menu">&#9776;</button>
+      <div class="brand">
+        <div class="logo-badge">&#127959;</div>
+        <div>
+          <h1>SIVAN CRANE SERVICE</h1>
+          <p>Crane Management &amp; GST Billing Software</p>
+        </div>
       </div>
     </div>
     <div class="user-box">
       <span>Welcome, Admin</span>
     </div>
   </div>
+  <div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+  <script>
+    function toggleSidebar() {
+      var sb = document.querySelector('.sidebar');
+      var bd = document.querySelector('.sidebar-backdrop');
+      if (sb) sb.classList.toggle('show');
+      if (bd) bd.classList.toggle('show');
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.sidebar a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          if (window.innerWidth <= 900) toggleSidebar();
+        });
+      });
+    });
+  </script>
 </div>
 
 <div th:fragment="sidebar(active)">
