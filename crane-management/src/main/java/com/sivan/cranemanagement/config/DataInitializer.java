@@ -3,6 +3,7 @@ package com.sivan.cranemanagement.config;
 import com.sivan.cranemanagement.model.*;
 import com.sivan.cranemanagement.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,19 +20,24 @@ public class DataInitializer implements CommandLineRunner {
     private final DriverRepository driverRepository;
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     public DataInitializer(UserRepository userRepository, CraneRepository craneRepository,
                             DriverRepository driverRepository, CustomerRepository customerRepository,
-                            PasswordEncoder passwordEncoder) {
+                            PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.craneRepository = craneRepository;
         this.driverRepository = driverRepository;
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public void run(String... args) {
+        repairLegacyTripSheetColumns();
+        repairPaymentTargetColumns();
+
         if (userRepository.findByUsername("admin").isEmpty()) {
             User admin = new User();
             admin.setUsername("admin");
@@ -63,6 +69,30 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+    private void repairPaymentTargetColumns() {
+        try {
+            jdbcTemplate.execute("ALTER TABLE payments MODIFY invoice_id BIGINT NULL");
+        } catch (Exception ignored) {
+            // Older or empty databases may not have payments yet.
+        }
+        try {
+            if (!columnExists("payments", "trip_sheet_id")) {
+                jdbcTemplate.execute("ALTER TABLE payments ADD COLUMN trip_sheet_id BIGINT NULL");
+            }
+        } catch (Exception ignored) {
+            // Hibernate will create the column for fresh databases.
+        }
+    }
+
+    private boolean columnExists(String tableName, String columnName) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+                Integer.class,
+                tableName,
+                columnName);
+        return count != null && count > 0;
+    }
+
     private void saveCrane(String no, String reg, String type, String capacity, String status) {
         Crane c = new Crane();
         c.setCraneNo(no);
@@ -79,6 +109,17 @@ public class DataInitializer implements CommandLineRunner {
         d.setPhone(phone);
         d.setLicenseNo(license);
         driverRepository.save(d);
+    }
+
+    private void repairLegacyTripSheetColumns() {
+        String[] legacyWorkColumns = {"work_lifting", "work_loading", "work_unloading", "work_other"};
+        for (String column : legacyWorkColumns) {
+            try {
+                jdbcTemplate.execute("ALTER TABLE trip_sheets MODIFY " + column + " BIT(1) NOT NULL DEFAULT b'0'");
+            } catch (Exception ignored) {
+                // Clean databases do not have these legacy columns.
+            }
+        }
     }
 
     private void saveCustomer(String name, String phone, String gst, String address) {

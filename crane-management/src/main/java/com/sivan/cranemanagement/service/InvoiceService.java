@@ -82,13 +82,10 @@ public class InvoiceService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new RuntimeException("Booking not found: " + bookingId));
         List<TripSheet> tripSheets = tripSheetRepository.findByBookingIdOrderByIdDesc(bookingId);
-        TripSheet firstTripSheet = tripSheets.stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Trip Sheet not found for booking: " + booking.getBookingNo()));
 
         Invoice invoice = new Invoice();
         invoice.setBooking(booking);
-        invoice.setTripSheet(firstTripSheet);
+        tripSheets.stream().findFirst().ifPresent(invoice::setTripSheet);
         invoice.setCustomer(booking.getCustomer());
         invoice.setInvoiceDate(LocalDate.now());
 

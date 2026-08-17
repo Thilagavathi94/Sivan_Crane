@@ -74,8 +74,22 @@
       background: rgba(255,255,255,.18);
       border: 2px solid rgba(255,255,255,.55);
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 800; font-size: 22px; flex-shrink: 0;
+      flex-shrink: 0;
+      padding: 4px;
+      object-fit: contain;
     }
+    .sheet { position: relative; }
+    .sheet .watermark {
+      position: absolute;
+      right: -10px;
+      bottom: 10px;
+      width: 320px;
+      height: auto;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .sheet > *:not(.watermark) { position: relative; z-index: 1; }
     h1 { margin: 0; font-size: 22px; letter-spacing: .6px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.15); }
     .sub { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,.9); margin-top: 2px; }
     .bill {
@@ -202,9 +216,10 @@
   </div>
 
   <div class="sheet">
+    <img class="watermark" th:src="@{/images/crane-watermark.svg}" alt="">
     <div class="top">
       <div class="brand">
-        <div class="logo">S</div>
+        <img class="logo" th:src="@{/images/sivan-logo.svg}" alt="Sivan Crane Service">
         <div>
           <h1>SIVAN CRANE SERVICE</h1>
           <div class="sub">Manual Handling, Loading &amp; Unloading, Safety Work, Hourly, Daily &amp; Monthly Works</div>
@@ -225,32 +240,19 @@
       <div class="label">Party's Name</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.name : '-'}">Customer</div>
       <div class="label">Address</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.address : '-'}">Address</div>
       <div class="label">Phone</div><div class="value" th:text="${tripSheet.customer != null ? tripSheet.customer.phone : '-'}">Phone</div>
-      <div class="label">Place</div><div class="value" th:text="${tripSheet.location}">Place</div>
     </div>
 
     <div class="section">
       <div class="box">
         <div class="box-title">Work Details</div>
         <div class="work-lines">
-          <div>Starting Time</div><div th:text="${tripSheet.startTime != null ? tripSheet.startTime : '-'}">-</div>
-          <div>Finishing Time</div><div th:text="${tripSheet.endTime != null ? tripSheet.endTime : '-'}">-</div>
           <div>Total Running Hours</div><div th:text="${tripSheet.totalHours}">0</div>
         </div>
-        <div class="checks">
-          <span class="work-chip" th:classappend="${tripSheet.workLifting} ? 'on' : ''"><span class="dot"></span>Lifting</span>
-          <span class="work-chip" th:classappend="${tripSheet.workLoading} ? 'on' : ''"><span class="dot"></span>Loading</span>
-          <span class="work-chip" th:classappend="${tripSheet.workUnloading} ? 'on' : ''"><span class="dot"></span>Unloading</span>
-          <span class="work-chip" th:classappend="${tripSheet.workOther} ? 'on' : ''"><span class="dot"></span>Other Work</span>
-        </div>
-        <div class="work-notes" th:text="${tripSheet.workDetails}">Work details</div>
       </div>
 
       <div class="box charges">
-        <div class="box-title">Hire Charges</div>
-        <div class="row"><div>Minimum 1 Hr Charges</div><div th:text="${#numbers.formatDecimal(tripSheet.minimumOneHourCharges,0,'COMMA',0,'POINT')}">0</div></div>
-        <div class="row"><div>Minimum 2 Hrs Charges</div><div th:text="${#numbers.formatDecimal(tripSheet.minimumTwoHourCharges,0,'COMMA',0,'POINT')}">0</div></div>
-        <div class="row"><div>Additional Hour</div><div th:text="${#numbers.formatDecimal(tripSheet.additionalCharges,0,'COMMA',0,'POINT')}">0</div></div>
-        <div class="row total"><div>Total</div><div th:text="${#numbers.formatDecimal(tripSheet.hireChargesTotal,0,'COMMA',0,'POINT')}">0</div></div>
+        <div class="box-title">Amount</div>
+        <div class="row total"><div>Total</div><div th:text="${#numbers.formatDecimal(tripSheet.amount,0,'COMMA',0,'POINT')}">0</div></div>
       </div>
     </div>
 

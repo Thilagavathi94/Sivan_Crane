@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="navyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16224d"/>
+      <stop offset="100%" stop-color="#0f1b3d"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="58" fill="url(#navyGrad)" stroke="#f7941d" stroke-width="4"/>
+  <!-- crane base / truck -->
+  <rect x="22" y="76" width="46" height="14" rx="2" fill="#f7941d"/>
+  <circle cx="32" cy="94" r="7" fill="#eef0f5"/>
+  <circle cx="58" cy="94" r="7" fill="#eef0f5"/>
+  <circle cx="32" cy="94" r="3" fill="#0f1b3d"/>
+  <circle cx="58" cy="94" r="3" fill="#0f1b3d"/>
+  <!-- crane mast -->
+  <rect x="40" y="30" width="6" height="46" fill="#eef0f5"/>
+  <!-- crane boom -->
+  <polygon points="43,30 96,20 96,26 49,36" fill="#eef0f5"/>
+  <!-- boom lattice lines -->
+  <line x1="52" y1="34" x2="60" y2="24" stroke="#0f1b3d" stroke-width="1.5"/>
+  <line x1="63" y1="32" x2="71" y2="23" stroke="#0f1b3d" stroke-width="1.5"/>
+  <line x1="74" y1="30" x2="82" y2="22" stroke="#0f1b3d" stroke-width="1.5"/>
+  <!-- hoist cable + hook -->
+  <line x1="93" y1="22" x2="93" y2="54" stroke="#eef0f5" stroke-width="2"/>
+  <path d="M93 54 q0 8 8 8" stroke="#f7941d" stroke-width="3" fill="none"/>
+  <!-- counterweight -->
+  <rect x="36" y="26" width="8" height="14" fill="#f7941d"/>
+  <text x="60" y="112" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="800" fill="#eef0f5" letter-spacing="1">SIVAN</text>
+</svg>

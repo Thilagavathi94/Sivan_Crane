@@ -8,5 +8,6 @@ public interface TripSheetRepository extends JpaRepository<TripSheet, Long> {
     List<TripSheet> findAllByOrderByIdDesc();
     List<TripSheet> findByCraneIdOrderByIdDesc(Long craneId);
     List<TripSheet> findByBookingIdOrderByIdDesc(Long bookingId);
+    List<TripSheet> findByBillingTypeOrderByIdDesc(String billingType);
     long countByCraneId(Long craneId);
 }

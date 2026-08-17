@@ -113,18 +113,22 @@
 
       <div class="col-md-6">
         <div class="card-panel">
-          <div class="panel-title">Income Records</div>
+          <div class="panel-title">Payment Records</div>
           <div class="table-responsive">
             <table class="table table-sm">
-              <thead><tr><th>Invoice No</th><th>Customer</th><th>Date</th><th>Received</th></tr></thead>
+              <thead><tr><th>Type</th><th>Reference No</th><th>Customer</th><th>Payment Date</th><th>Received</th></tr></thead>
               <tbody>
-                <tr th:each="i : ${invoices}">
-                  <td th:text="${i.invoiceNo}">INV</td>
-                  <td th:text="${i.customer.name}">Customer</td>
-                  <td th:text="${i.invoiceDate}">2026-07-21</td>
-                  <td th:text="'₹' + ${#numbers.formatDecimal(i.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
+                <tr th:each="p : ${payments}">
+                  <td>
+                    <span class="badge bg-primary" th:if="${p.invoice != null}">GST</span>
+                    <span class="badge bg-secondary" th:if="${p.tripSheet != null}">Regular</span>
+                  </td>
+                  <td th:text="${p.invoice != null ? p.invoice.invoiceNo : p.tripSheet.tripSheetNo}">INV / TS</td>
+                  <td th:text="${p.invoice != null ? p.invoice.customer.name : p.tripSheet.customer.name}">Customer</td>
+                  <td th:text="${p.paymentDate}">2026-07-21</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(p.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(invoices)}"><td colspan="4" class="text-center text-muted">No income records</td></tr>
+                <tr th:if="${#lists.isEmpty(payments)}"><td colspan="5" class="text-center text-muted">No payment records</td></tr>
               </tbody>
             </table>
           </div>

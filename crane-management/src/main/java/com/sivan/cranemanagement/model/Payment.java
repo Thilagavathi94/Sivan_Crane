@@ -15,8 +15,12 @@ public class Payment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id", nullable = false)
+    @JoinColumn(name = "invoice_id")
     private Invoice invoice;
+
+    @ManyToOne
+    @JoinColumn(name = "trip_sheet_id")
+    private TripSheet tripSheet;
 
     private LocalDate paymentDate;
 

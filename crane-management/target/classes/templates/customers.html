@@ -37,13 +37,6 @@
               <label class="form-label">Address</label>
               <textarea th:field="*{address}" class="form-control" rows="2"></textarea>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Status</label>
-              <select th:field="*{status}" class="form-select">
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
             <button type="submit" class="btn btn-brand-orange w-100">Save Customer</button>
           </form>
         </div>
@@ -54,20 +47,19 @@
           <div class="panel-title">Recent Customers</div>
           <div class="table-responsive">
             <table class="table table-sm">
-              <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>GST Number</th><th>Status</th><th>Action</th></tr></thead>
+              <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>GST Number</th><th>Action</th></tr></thead>
               <tbody>
                 <tr th:each="c, iter : ${customers}">
                   <td th:text="${iter.count}">1</td>
                   <td th:text="${c.name}">Siva Construction</td>
                   <td th:text="${c.phone}">9787654321</td>
                   <td th:text="${c.gstNumber}">33ABCCD1234F1Z5</td>
-                  <td><span class="badge" th:classappend="'badge-status-' + ${#strings.toLowerCase(c.status)}" th:text="${c.status}">Active</span></td>
                   <td>
                     <a th:href="@{'/customers/edit/' + ${c.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
                     <a th:href="@{'/customers/delete/' + ${c.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this customer?')">Delete</a>
                   </td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(customers)}"><td colspan="6" class="text-center text-muted">No customers yet</td></tr>
+                <tr th:if="${#lists.isEmpty(customers)}"><td colspan="5" class="text-center text-muted">No customers yet</td></tr>
               </tbody>
             </table>
           </div>

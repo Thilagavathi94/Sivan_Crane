@@ -100,21 +100,15 @@ CREATE TABLE IF NOT EXISTS trip_sheets (
   booking_id BIGINT,
   customer_id BIGINT NOT NULL,
   crane_id BIGINT NOT NULL,
-  driver_id BIGINT,
   trip_date DATE,
-  start_time TIME,
-  end_time TIME,
   total_hours DECIMAL(10,2) DEFAULT 0,
-  work_details VARCHAR(1000),
-  additional_hours DECIMAL(10,2) DEFAULT 0,
-  additional_charges DECIMAL(10,2) DEFAULT 0,
-  status VARCHAR(50) DEFAULT 'Work In Progress',
+  amount DECIMAL(12,2) DEFAULT 0,
+  billing_type VARCHAR(50) DEFAULT 'Regular',
   converted_to_invoice BOOLEAN DEFAULT FALSE,
   created_at DATETIME,
   CONSTRAINT fk_trip_booking FOREIGN KEY (booking_id) REFERENCES bookings(id),
   CONSTRAINT fk_trip_customer FOREIGN KEY (customer_id) REFERENCES customers(id),
-  CONSTRAINT fk_trip_crane FOREIGN KEY (crane_id) REFERENCES cranes(id),
-  CONSTRAINT fk_trip_driver FOREIGN KEY (driver_id) REFERENCES drivers(id)
+  CONSTRAINT fk_trip_crane FOREIGN KEY (crane_id) REFERENCES cranes(id)
 );
 
 -- ---------------------------------------------------------------------------
@@ -182,13 +176,15 @@ CREATE TABLE IF NOT EXISTS invoice_items (
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS payments (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  invoice_id BIGINT NOT NULL,
+  invoice_id BIGINT,
+  trip_sheet_id BIGINT,
   payment_date DATE,
   received_amount DECIMAL(12,2) DEFAULT 0,
   payment_mode VARCHAR(50) DEFAULT 'Cash',
   payment_type VARCHAR(50) DEFAULT 'Paid',
   notes VARCHAR(500),
-  CONSTRAINT fk_payment_invoice FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+  CONSTRAINT fk_payment_invoice FOREIGN KEY (invoice_id) REFERENCES invoices(id),
+  CONSTRAINT fk_payment_tripsheet FOREIGN KEY (trip_sheet_id) REFERENCES trip_sheets(id)
 );
 
 -- ---------------------------------------------------------------------------

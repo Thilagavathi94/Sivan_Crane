@@ -3,6 +3,7 @@ package com.sivan.cranemanagement.controller;
 import com.sivan.cranemanagement.model.Crane;
 import com.sivan.cranemanagement.model.Expense;
 import com.sivan.cranemanagement.model.Invoice;
+import com.sivan.cranemanagement.model.Payment;
 import com.sivan.cranemanagement.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,16 +27,19 @@ public class ReportController {
     private final CustomerService customerService;
     private final CraneService craneService;
     private final DriverService driverService;
+    private final PaymentService paymentService;
 
     public ReportController(BookingService bookingService, InvoiceService invoiceService,
                              ExpenseService expenseService, CustomerService customerService,
-                             CraneService craneService, DriverService driverService) {
+                             CraneService craneService, DriverService driverService,
+                             PaymentService paymentService) {
         this.bookingService = bookingService;
         this.invoiceService = invoiceService;
         this.expenseService = expenseService;
         this.customerService = customerService;
         this.craneService = craneService;
         this.driverService = driverService;
+        this.paymentService = paymentService;
     }
 
     @GetMapping("/reports")
@@ -45,9 +49,16 @@ public class ReportController {
         LocalDate end = selectedMonth.atEndOfMonth();
 
         List<Invoice> invoices = invoiceService.findBetween(start, end);
+        List<Payment> payments = paymentService.findBetween(start, end);
+        List<Payment> gstPayments = payments.stream()
+                .filter(payment -> payment.getInvoice() != null)
+                .toList();
+        List<Payment> regularPayments = payments.stream()
+                .filter(payment -> payment.getTripSheet() != null)
+                .toList();
         List<Expense> expenses = expenseService.findBetween(start, end);
 
-        BigDecimal totalIncome = invoices.stream().map(Invoice::getReceivedAmount)
+        BigDecimal totalIncome = payments.stream().map(Payment::getReceivedAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalPending = invoices.stream().map(Invoice::getBalanceAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -68,9 +79,12 @@ public class ReportController {
         model.addAttribute("totalCranes", craneService.count());
 
         model.addAttribute("month", selectedMonth.toString());
-        model.addAttribute("dailySummaries", buildDailySummaries(selectedMonth, invoices, expenses));
-        model.addAttribute("craneSummaries", buildCraneSummaries(craneService.findAll(), invoices, expenses));
+        model.addAttribute("dailySummaries", buildDailySummaries(selectedMonth, payments, expenses));
+        model.addAttribute("craneSummaries", buildCraneSummaries(craneService.findAll(), payments, expenses));
         model.addAttribute("invoices", invoices);
+        model.addAttribute("payments", payments);
+        model.addAttribute("gstPayments", gstPayments);
+        model.addAttribute("regularPayments", regularPayments);
         model.addAttribute("pendingInvoices", invoiceService.findPending());
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
@@ -85,21 +99,21 @@ public class ReportController {
         return "reports";
     }
 
-    private List<DailySummary> buildDailySummaries(YearMonth selectedMonth, List<Invoice> invoices, List<Expense> expenses) {
+    private List<DailySummary> buildDailySummaries(YearMonth selectedMonth, List<Payment> payments, List<Expense> expenses) {
         Map<LocalDate, DailySummary> summaries = new LinkedHashMap<>();
         for (int day = 1; day <= selectedMonth.lengthOfMonth(); day++) {
             LocalDate date = selectedMonth.atDay(day);
             summaries.put(date, new DailySummary(date));
         }
-        for (Invoice invoice : invoices) {
-            if (invoice.getInvoiceDate() == null) {
+        for (Payment payment : payments) {
+            if (payment.getPaymentDate() == null) {
                 continue;
             }
-            DailySummary summary = summaries.get(invoice.getInvoiceDate());
+            DailySummary summary = summaries.get(payment.getPaymentDate());
             if (summary == null) {
                 continue;
             }
-            summary.income = summary.income.add(invoice.getReceivedAmount());
+            summary.income = summary.income.add(payment.getReceivedAmount());
         }
         for (Expense expense : expenses) {
             if (expense.getExpenseDate() == null) {
@@ -114,14 +128,19 @@ public class ReportController {
         return new ArrayList<>(summaries.values());
     }
 
-    private List<CraneSummary> buildCraneSummaries(List<Crane> cranes, List<Invoice> invoices, List<Expense> expenses) {
+    private List<CraneSummary> buildCraneSummaries(List<Crane> cranes, List<Payment> payments, List<Expense> expenses) {
         List<CraneSummary> summaries = new ArrayList<>();
         for (Crane crane : cranes) {
             CraneSummary summary = new CraneSummary(crane);
-            for (Invoice invoice : invoices) {
-                if (invoice.getTripSheet() != null && invoice.getTripSheet().getCrane() != null
+            for (Payment payment : payments) {
+                Invoice invoice = payment.getInvoice();
+                if (invoice != null && invoice.getTripSheet() != null && invoice.getTripSheet().getCrane() != null
                         && crane.getId().equals(invoice.getTripSheet().getCrane().getId())) {
-                    summary.income = summary.income.add(invoice.getReceivedAmount());
+                    summary.income = summary.income.add(payment.getReceivedAmount());
+                    summary.tripCount++;
+                } else if (payment.getTripSheet() != null && payment.getTripSheet().getCrane() != null
+                        && crane.getId().equals(payment.getTripSheet().getCrane().getId())) {
+                    summary.income = summary.income.add(payment.getReceivedAmount());
                     summary.tripCount++;
                 }
             }

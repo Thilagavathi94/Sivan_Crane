@@ -39,8 +39,13 @@ public class InvoiceController {
     }
 
     private Invoice padItems(Invoice invoice) {
+        boolean useDefaultHireRows = invoice.getTripSheet() == null && invoice.getItems().isEmpty();
         while (invoice.getItems().size() < 5) {
-            invoice.getItems().add(new InvoiceItem());
+            InvoiceItem item = new InvoiceItem();
+            if (useDefaultHireRows) {
+                item.setDescription(defaultHireChargeDescription(invoice.getItems().size()));
+            }
+            invoice.getItems().add(item);
         }
         return invoice;
     }
@@ -72,14 +77,34 @@ public class InvoiceController {
     @PostMapping("/save")
     public String save(@ModelAttribute Invoice invoice) {
         List<InvoiceItem> cleaned = new ArrayList<>();
-        for (InvoiceItem item : invoice.getItems()) {
-            if (item.getDescription() != null && !item.getDescription().isBlank()) {
+        for (int i = 0; i < invoice.getItems().size(); i++) {
+            InvoiceItem item = invoice.getItems().get(i);
+            boolean hasDescription = item.getDescription() != null && !item.getDescription().isBlank();
+            boolean hasUnits = item.getHoursOrUnits() != null && item.getHoursOrUnits().compareTo(BigDecimal.ZERO) > 0;
+            boolean hasAmount = item.getRate() != null && item.getRate().compareTo(BigDecimal.ZERO) > 0;
+            if (hasDescription || hasUnits || hasAmount) {
+                if (!hasDescription) {
+                    item.setDescription(defaultHireChargeDescription(i));
+                }
+                if (!hasUnits && hasAmount) {
+                    item.setHoursOrUnits(BigDecimal.ONE);
+                }
                 cleaned.add(item);
             }
         }
         invoice.setItems(cleaned);
         invoiceService.save(invoice);
         return "redirect:/invoices";
+    }
+
+    private String defaultHireChargeDescription(int index) {
+        return switch (index) {
+            case 0 -> "Minimum 1 Hrs Charges";
+            case 1 -> "Minimum 2 Hrs Charges";
+            case 2 -> "Additional Hrs";
+            case 3 -> "Betta";
+            default -> "Other Charge";
+        };
     }
 
     @GetMapping("/edit/{id}")

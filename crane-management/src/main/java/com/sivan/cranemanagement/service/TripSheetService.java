@@ -35,6 +35,10 @@ public class TripSheetService {
         return tripSheetRepository.findByBookingIdOrderByIdDesc(bookingId);
     }
 
+    public List<TripSheet> findRegularTripSheets() {
+        return tripSheetRepository.findByBillingTypeOrderByIdDesc("Regular");
+    }
+
     public long countByCraneId(Long craneId) {
         return tripSheetRepository.countByCraneId(craneId);
     }
@@ -57,45 +61,33 @@ public class TripSheetService {
         tripSheet.setBooking(booking);
         tripSheet.setCustomer(booking.getCustomer());
         tripSheet.setCrane(booking.getPreferredCrane());
-        tripSheet.setDriver(booking.getDriver());
         tripSheet.setTripDate(booking.getBookingDate() != null ? booking.getBookingDate() : LocalDate.now());
-        tripSheet.setLocation(booking.getLocation());
-        String workType = booking.getWorkType() != null ? booking.getWorkType() : "";
-        String description = booking.getDescription() != null ? booking.getDescription() : "";
-        tripSheet.setWorkDetails((workType + " " + description).trim());
         return tripSheet;
     }
 
     public TripSheet save(TripSheet tripSheet) {
-        if (tripSheet.getId() == null) {
+        // Trip Sheet No is entered by the user. Only auto-generate as a fallback
+        // if it was left blank, and only for brand-new trip sheets.
+        if (tripSheet.getId() == null &&
+                (tripSheet.getTripSheetNo() == null || tripSheet.getTripSheetNo().trim().isEmpty())) {
             tripSheet.setTripSheetNo(numberGeneratorService.nextTripSheetNo());
         }
         if (tripSheet.getTotalHours() == null) {
             tripSheet.setTotalHours(java.math.BigDecimal.ZERO);
         }
-        if (tripSheet.getAdditionalHours() == null) {
-            tripSheet.setAdditionalHours(java.math.BigDecimal.ZERO);
+        if (tripSheet.getAmount() == null) {
+            tripSheet.setAmount(java.math.BigDecimal.ZERO);
         }
-        if (tripSheet.getMinimumOneHourCharges() == null) {
-            tripSheet.setMinimumOneHourCharges(java.math.BigDecimal.ZERO);
-        }
-        if (tripSheet.getMinimumTwoHourCharges() == null) {
-            tripSheet.setMinimumTwoHourCharges(java.math.BigDecimal.ZERO);
-        }
-        if (tripSheet.getAdditionalCharges() == null) {
-            tripSheet.setAdditionalCharges(java.math.BigDecimal.ZERO);
+        if (tripSheet.getBillingType() == null || tripSheet.getBillingType().trim().isEmpty()) {
+            tripSheet.setBillingType("Regular");
         }
         TripSheet saved = tripSheetRepository.save(tripSheet);
 
-        // Mark the originating booking as converted + completed if the trip is done
+        // Mark the originating booking as converted / in progress
         if (saved.getBooking() != null) {
             Booking booking = saved.getBooking();
             booking.setConvertedToTripSheet(true);
-            if ("Work Completed".equalsIgnoreCase(saved.getStatus())) {
-                booking.setStatus("Completed");
-            } else {
-                booking.setStatus("In Progress");
-            }
+            booking.setStatus("In Progress");
             bookingRepository.save(booking);
         }
         return saved;

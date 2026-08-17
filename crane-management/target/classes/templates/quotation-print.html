@@ -25,7 +25,22 @@
       padding: 40px;
       border-radius: 6px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
     }
+    .sheet .watermark {
+      position: absolute;
+      left: 50%;
+      top: 55%;
+      transform: translate(-50%, -50%);
+      width: 780px;
+      max-width: 92%;
+      height: auto;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .sheet > *:not(.watermark) { position: relative; z-index: 1; }
     .toolbar {
       max-width: 880px;
       margin: 0 auto 16px auto;
@@ -57,9 +72,8 @@
     .head .brand { display: flex; align-items: center; gap: 12px; }
     .head .brand .badge {
       width: 50px; height: 50px; border-radius: 10px;
-      background: var(--navy); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 24px;
+      object-fit: contain;
+      flex-shrink: 0;
     }
     .head .brand h1 { margin: 0; font-size: 19px; color: var(--navy); }
     .head .brand p { margin: 2px 0 0 0; font-size: 12px; color: #6b7280; }
@@ -77,10 +91,6 @@
     tbody tr { border-bottom: 1px solid var(--border); }
     td.num, th.num { text-align: right; }
 
-    .totals { width: 280px; margin-left: auto; font-size: 14px; }
-    .totals div { display: flex; justify-content: space-between; padding: 6px 0; }
-    .totals .grand { border-top: 2px solid var(--navy); font-weight: 700; font-size: 16px; color: var(--navy); margin-top: 4px; }
-
     .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: #6b7280; }
     .footer .sign { text-align: center; }
     .footer .sign .line { margin-top: 40px; border-top: 1px solid #333; width: 160px; }
@@ -91,6 +101,7 @@
       body { background: #fff; padding: 0; }
       .toolbar { display: none; }
       .sheet { box-shadow: none; padding: 0; max-width: 100%; }
+      .sheet .watermark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -102,14 +113,14 @@
   </div>
 
   <div class="sheet">
+    <img class="watermark" th:src="@{/images/quotation-crane-background.png}" alt="">
     <div class="head">
       <div class="brand">
-        <div class="badge">🏗️</div>
+        <img class="badge" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service" style="width:50px;height:50px;border-radius:10px;">
         <div>
           <h1>SIVAN CRANE SERVICE</h1>
           <p>Crane Hiring &amp; GST Billing Services</p>
-          <!-- Update with your real business details -->
-          <p>GSTIN: 33XXXXX0000X1ZX &nbsp;|&nbsp; Ph: +91 98765 43210</p>
+          <p>GSTIN: 33GTWPS5321H1Z5 &nbsp;|&nbsp; Ph: +91 98765 43210</p>
         </div>
       </div>
       <div class="doc-title">
@@ -159,12 +170,6 @@
         </tr>
       </tbody>
     </table>
-
-    <div class="totals">
-      <div><span>Subtotal</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.subtotal,0,'COMMA',2,'POINT')}">₹0.00</span></div>
-      <div><span th:text="'GST (' + ${quotation.gstPercent} + '%)'">GST</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.gstAmount,0,'COMMA',2,'POINT')}">₹0.00</span></div>
-      <div class="grand"><span>Total</span><span th:text="'₹' + ${#numbers.formatDecimal(quotation.totalAmount,0,'COMMA',2,'POINT')}">₹0.00</span></div>
-    </div>
 
     <div class="note">
       This quotation is valid for 15 days from the date of issue. Prices are subject to change based on final site conditions and work duration.

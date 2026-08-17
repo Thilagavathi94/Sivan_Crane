@@ -20,8 +20,11 @@
         <div class="card-panel">
           <div class="panel-title"><span th:text="${invoice.id != null ? 'Edit Invoice' : 'New GST Invoice'}">New GST Invoice</span></div>
 
-          <div class="alert alert-info py-2" style="font-size:13px;" th:if="${invoice.booking != null}">
+          <div class="alert alert-info py-2" style="font-size:13px;" th:if="${invoice.booking != null and invoice.tripSheet != null}">
             Generated from Booking <b th:text="${invoice.booking.bookingNo}"></b>. All trip sheet amounts for this booking are loaded below.
+          </div>
+          <div class="alert alert-secondary py-2" style="font-size:13px;" th:if="${invoice.tripSheet == null}">
+            Manual invoice: if no trip sheet is available, select the customer and enter hire charges below.
           </div>
 
           <form th:action="@{/invoices/save}" th:object="${invoice}" method="post">
@@ -29,9 +32,9 @@
             <input type="hidden" th:field="*{invoiceNo}">
 
             <div class="mb-2">
-              <label class="form-label">Booking No *</label>
+              <label class="form-label">Booking No / Trip Sheet (optional)</label>
               <select class="form-select" onchange="if(this.value) window.location.href='/invoices/from-booking/' + this.value">
-                <option value="">Select Booking No</option>
+                <option value="">Manual Invoice / No Trip Sheet</option>
                 <option th:each="b : ${bookings}"
                         th:value="${b.id}"
                         th:selected="${invoice.booking != null and invoice.booking.id == b.id}"
@@ -58,20 +61,26 @@
               <label class="form-label">Trip Sheet Nos</label>
               <input type="hidden" th:field="*{tripSheet}">
               <div class="form-control" style="height:auto; min-height:42px;">
-                <span th:if="${invoice.booking == null}" class="text-muted">Select Booking No First</span>
-                <span th:if="${invoice.booking != null}" th:each="item, iter : *{items}">
+                <span th:if="${invoice.tripSheet == null}" class="text-muted">Manual invoice - no trip sheet selected</span>
+                <span th:if="${invoice.tripSheet != null}" th:each="item, iter : *{items}">
                   <span th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</span><span th:if="${!iter.last}">, </span>
                 </span>
               </div>
             </div>
 
-            <label class="form-label mt-2 fw-bold">Trip Sheet Amounts</label>
+            <label class="form-label mt-2 fw-bold">Hire Charge / Trip Sheet Amounts</label>
             <table class="table table-sm">
-              <thead><tr><th>Trip Sheet</th><th>Units</th><th>Amount</th></tr></thead>
+              <thead><tr><th>Work / Charge</th><th>Units</th><th>Amount</th></tr></thead>
               <tbody>
                 <tr th:each="item, iter : *{items}">
-                  <td><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="Trip Sheet No"></td>
-                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm" placeholder="1"></td>
+                  <td>
+                    <input type="hidden" th:field="*{items[__${iter.index}__].description}">
+                    <div class="form-control form-control-sm bg-light"
+                         th:text="${item.description != null and !#strings.isEmpty(item.description) ? item.description : (iter.index == 0 ? 'Minimum 1 Hrs Charges' : (iter.index == 1 ? 'Minimum 2 Hrs Charges' : (iter.index == 2 ? 'Additional Hrs' : (iter.index == 3 ? 'Betta' : 'Other Charge'))))}">
+                      Minimum 1 Hrs Charges
+                    </div>
+                  </td>
+                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm" th:placeholder="${iter.index == 0 ? '1' : (iter.index == 1 ? '2' : '1')}"></td>
                   <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].rate}" class="form-control form-control-sm" placeholder="Amount"></td>
                 </tr>
               </tbody>

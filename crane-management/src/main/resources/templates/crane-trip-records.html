@@ -48,18 +48,16 @@
           <div class="panel-title">Trip Records</div>
           <div class="table-responsive">
             <table class="table table-sm align-middle">
-              <thead><tr><th>Date</th><th>Party</th><th>Place</th><th>Start</th><th>End</th><th>Hours</th><th>Print</th></tr></thead>
+              <thead><tr><th>Date</th><th>Party</th><th>Hours</th><th>Amount</th><th>Print</th></tr></thead>
               <tbody>
                 <tr th:each="t : ${tripSheets}">
                   <td th:text="${t.tripDate}">2026-07-24</td>
                   <td th:text="${t.customer != null ? t.customer.name : '-'}">Customer</td>
-                  <td th:text="${t.location}">Place</td>
-                  <td th:text="${t.startTime != null ? t.startTime : '-'}">-</td>
-                  <td th:text="${t.endTime != null ? t.endTime : '-'}">-</td>
                   <td th:text="${t.totalHours}">0</td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(t.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
                   <td><a th:href="@{'/tripsheets/print/' + ${t.id}}" target="_blank" class="btn btn-sm btn-outline-secondary">PDF</a></td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(tripSheets)}"><td colspan="7" class="text-center text-muted">No trip records</td></tr>
+                <tr th:if="${#lists.isEmpty(tripSheets)}"><td colspan="5" class="text-center text-muted">No trip records</td></tr>
               </tbody>
             </table>
           </div>

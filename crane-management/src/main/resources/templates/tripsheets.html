@@ -6,21 +6,6 @@
   <title>Trip Sheet - Sivan Crane Service</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/style.css}">
-  <style>
-    .work-type-group { display:flex; flex-wrap:wrap; gap:8px; }
-    .work-type-chip {
-      display:flex; align-items:center; gap:6px;
-      border:1px solid #cbd5e1; border-radius:20px;
-      padding:6px 14px; font-size:13.5px; cursor:pointer;
-      background:#f8fafc; color:#334155; user-select:none;
-      transition:.15s ease;
-    }
-    .work-type-chip input { accent-color:#1d4ed8; width:15px; height:15px; cursor:pointer; }
-    .work-type-chip:hover { border-color:#1d4ed8; background:#eef2ff; }
-    .work-type-chip:has(input:checked) {
-      background:#1d4ed8; border-color:#1d4ed8; color:#fff; font-weight:600;
-    }
-  </style>
 </head>
 <body>
 <div th:replace="~{fragments :: topbar}"></div>
@@ -44,12 +29,12 @@
       <div class="col-md-5">
         <div class="card-panel">
           <div class="panel-title">📋 <span th:text="${tripSheet.id != null ? 'Edit Trip Sheet' : 'New Trip Sheet'}">New Trip Sheet</span></div>
+          <div class="alert alert-danger py-2" th:if="${error}" th:text="${error}">Error</div>
           <form th:action="@{/tripsheets/save}" th:object="${tripSheet}" method="post">
             <input type="hidden" th:field="*{id}">
             <div class="mb-2">
               <label class="form-label">Trip Sheet No</label>
-              <input type="text" th:value="${tripSheet.tripSheetNo != null ? tripSheet.tripSheetNo : 'Auto generated'}" class="form-control" readonly>
-              <input type="hidden" th:field="*{tripSheetNo}">
+              <input type="text" th:field="*{tripSheetNo}" class="form-control" placeholder="e.g. TS-00001" required>
             </div>
             <div class="mb-2">
               <label class="form-label">Linked Booking (optional)</label>
@@ -59,10 +44,18 @@
               </select>
             </div>
             <div class="mb-2">
-              <label class="form-label">Customer *</label>
+              <label class="form-label">Billing Type *</label>
+              <select th:field="*{billingType}" class="form-select" required>
+                <option value="Regular">Regular</option>
+                <option value="GST">GST</option>
+              </select>
+              <div class="form-text">GST trip sheets require the selected customer's GST number.</div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Client *</label>
               <select th:field="*{customer}" class="form-select" required>
-                <option value="">Select Customer</option>
-                <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}">Customer</option>
+                <option value="">Select Client</option>
+                <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name + (c.gstNumber != null and !#strings.isEmpty(c.gstNumber) ? ' - GST: ' + c.gstNumber : '')}">Customer</option>
               </select>
             </div>
             <div class="mb-2">
@@ -70,13 +63,6 @@
               <select th:field="*{crane}" class="form-select" required>
                 <option value="">Select Crane</option>
                 <option th:each="c : ${cranes}" th:value="${c.id}" th:text="${c.craneNo} + ' (' + ${c.capacity} + ')'">Crane</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Driver</label>
-              <select th:field="*{driver}" class="form-select">
-                <option value="">Select Driver</option>
-                <option th:each="d : ${drivers}" th:value="${d.id}" th:text="${d.name}">Driver</option>
               </select>
             </div>
             <div class="row">
@@ -89,71 +75,9 @@
                 <input type="number" step="0.5" th:field="*{totalHours}" class="form-control">
               </div>
             </div>
-            <div class="mb-2">
-              <label class="form-label">Place / Location</label>
-              <input type="text" th:field="*{location}" class="form-control" placeholder="e.g. Coimbatore">
-            </div>
-            <div class="row">
-              <div class="col-6 mb-2">
-                <label class="form-label">Start Time</label>
-                <input type="time" th:field="*{startTime}" class="form-control">
-              </div>
-              <div class="col-6 mb-2">
-                <label class="form-label">End Time</label>
-                <input type="time" th:field="*{endTime}" class="form-control">
-              </div>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Work Type</label>
-              <div class="work-type-group">
-                <label class="work-type-chip">
-                  <input type="checkbox" th:field="*{workLifting}">
-                  <span>Lifting</span>
-                </label>
-                <label class="work-type-chip">
-                  <input type="checkbox" th:field="*{workLoading}">
-                  <span>Loading</span>
-                </label>
-                <label class="work-type-chip">
-                  <input type="checkbox" th:field="*{workUnloading}">
-                  <span>Unloading</span>
-                </label>
-                <label class="work-type-chip">
-                  <input type="checkbox" th:field="*{workOther}">
-                  <span>Other Work</span>
-                </label>
-              </div>
-            </div>
-            <div class="mb-2">
-              <label class="form-label">Work Details</label>
-              <textarea th:field="*{workDetails}" class="form-control" rows="2"></textarea>
-            </div>
-            <div class="row">
-              <div class="col-6 mb-2">
-                <label class="form-label">Minimum 1 Hr Charges</label>
-                <input type="number" step="0.01" th:field="*{minimumOneHourCharges}" class="form-control">
-              </div>
-              <div class="col-6 mb-2">
-                <label class="form-label">Minimum 2 Hrs Charges</label>
-                <input type="number" step="0.01" th:field="*{minimumTwoHourCharges}" class="form-control">
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-6 mb-2">
-                <label class="form-label">Additional Hours</label>
-                <input type="number" step="0.5" th:field="*{additionalHours}" class="form-control">
-              </div>
-              <div class="col-6 mb-2">
-                <label class="form-label">Additional Charges</label>
-                <input type="number" step="0.01" th:field="*{additionalCharges}" class="form-control">
-              </div>
-            </div>
             <div class="mb-3">
-              <label class="form-label">Status</label>
-              <select th:field="*{status}" class="form-select">
-                <option value="Work In Progress">Work In Progress</option>
-                <option value="Work Completed">Work Completed</option>
-              </select>
+              <label class="form-label">Amount</label>
+              <input type="number" step="0.01" th:field="*{amount}" class="form-control" placeholder="0.00">
             </div>
             <button type="submit" class="btn btn-brand-orange w-100">Save Trip Sheet</button>
           </form>
@@ -165,16 +89,16 @@
           <div class="panel-title">All Trip Sheets</div>
           <div class="table-responsive">
             <table class="table table-sm">
-              <thead><tr><th>Trip No</th><th>Customer</th><th>Crane</th><th>Date</th><th>Place</th><th>Hours</th><th>Status</th><th>Action</th></tr></thead>
+              <thead><tr><th>Trip No</th><th>Client</th><th>Type</th><th>Crane</th><th>Date</th><th>Hours</th><th>Amount</th><th>Action</th></tr></thead>
               <tbody>
                 <tr th:each="t : ${tripSheets}">
                   <td th:text="${t.tripSheetNo}">TS-00001</td>
                   <td th:text="${t.customer.name}">Customer</td>
+                  <td><span class="badge bg-info text-dark" th:text="${t.billingType != null ? t.billingType : 'Regular'}">Regular</span></td>
                   <td th:text="${t.crane != null ? t.crane.craneNo : '-'}">KCN-01</td>
                   <td th:text="${t.tripDate}">2026-07-21</td>
-                  <td th:text="${t.location}">Coimbatore</td>
                   <td th:text="${t.totalHours}">7.0</td>
-                  <td><span class="badge" th:classappend="'badge-status-' + ${#strings.toLowerCase(#strings.replace(t.status,' ','-'))}" th:text="${t.status}">Status</span></td>
+                  <td th:text="'₹' + ${#numbers.formatDecimal(t.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
                   <td>
                     <a th:href="@{'/tripsheets/edit/' + ${t.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
                     <a th:href="@{'/tripsheets/print/' + ${t.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF">🖨️ PDF</a>

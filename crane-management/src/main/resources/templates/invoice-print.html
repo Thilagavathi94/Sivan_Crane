@@ -63,6 +63,30 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 12px 30px rgba(15,23,42,.12), 0 2px 6px rgba(15,23,42,.06);
+      position: relative;
+    }
+    .sheet .watermark {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -50%);
+      width: 760px;
+      max-width: 88%;
+      height: auto;
+      opacity: 0.11;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(.9);
+    }
+    .sheet > *:not(.watermark) { position: relative; z-index: 1; }
+    .logo-mark {
+      width: 56px; height: 56px; border-radius: 50%;
+      object-fit: contain;
+      background: rgba(255,255,255,.15);
+      border: 2px solid rgba(255,255,255,.55);
+      padding: 4px;
+      margin: 0 auto 8px;
+      display: block;
     }
 
     .head {
@@ -205,8 +229,18 @@
 
     .charges { display: grid; grid-template-columns: 1fr 260px; gap: 22px; margin: 6px 22px 0; align-items: start; }
     .hire-lines { border-collapse: collapse; width: 100%; }
-    .hire-lines td { padding: 7px 4px; font-size: 13.5px; }
-    .hire-lines td:first-child { width: 220px; font-weight: 600; color: var(--muted); }
+    .hire-lines th {
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      padding: 8px 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      text-align: left;
+    }
+    .hire-lines td { padding: 8px 6px; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+    .hire-lines td:first-child { font-weight: 600; color: var(--muted); }
+    .hire-lines th:nth-child(2), .hire-lines th:nth-child(3),
+    .hire-lines td:nth-child(2), .hire-lines td:nth-child(3) { text-align: right; }
 
     .totals {
       border-collapse: separate;
@@ -263,6 +297,7 @@
       .sheet { width: 100%; border-radius: 0; box-shadow: none; }
       .head { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .right-title, .service th, .trip-table th, .totals .grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .sheet .watermark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -273,10 +308,12 @@
   </div>
 
   <div class="sheet">
+    <img class="watermark" th:src="@{/images/invoice-crane-background.png}" alt="">
     <div class="head">
+      <img class="logo-mark" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service">
       <h1>SIVAN CRANE SERVICES</h1>
       <div class="sub">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</div>
-      <div class="gst">GSTIN : 33XXXXX0000X1ZX</div>
+      <div class="gst">GSTIN : 33GTWPS5321H1Z5</div>
     </div>
 
     <div class="bill-row">
@@ -297,30 +334,24 @@
     <div class="service-wrap">
       <table class="service">
         <thead><tr><th>Description of Service</th><th>SAC</th></tr></thead>
-        <tbody><tr><td>Renting Crane Service</td><td>9973</td></tr></tbody>
+        <tbody><tr><td>Renting Crane Service</td><td>997319</td></tr></tbody>
       </table>
     </div>
 
     <div class="section-title">Work Details</div>
     <div class="work">
       <table class="details">
-        <tr><td>Crane Capacity</td><td th:text="${invoice.tripSheet != null and invoice.tripSheet.crane != null ? invoice.tripSheet.crane.capacity : '-'}">-</td></tr>
-        <tr>
-          <td>Trip Sheet No.</td>
-          <td>
-            <span th:each="item, iter : ${invoice.items}">
-              <span th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</span><span th:if="${!iter.last}">, </span>
-            </span>
-          </td>
-        </tr>
-        <tr><td>Date</td><td th:text="${invoice.invoiceDate}">2026-07-24</td></tr>
-        <tr><td>Running Hours</td><td th:text="${invoice.tripSheet != null ? invoice.tripSheet.totalHours : '-'}">-</td></tr>
+        <tr><td>Crane Capacity</td><td>12T / 14T / 15T / 16T / 17T / 50T / 30T</td></tr>
+        <tr><td>Trip Sheet No.</td><td>&nbsp;</td></tr>
+        <tr><td>Date</td><td>&nbsp;</td></tr>
+        <tr><td>Running Hours</td><td>&nbsp;</td></tr>
       </table>
 
-      <table class="trip-table">
+      <table class="trip-table"
+             th:if="${invoice.items.?[description != null &amp;&amp; description.startsWith('Trip Sheet ')].size() > 0}">
         <thead><tr><th>Trip</th><th>Amount</th></tr></thead>
         <tbody>
-          <tr th:each="item : ${invoice.items}">
+          <tr th:each="item : ${invoice.items.?[description != null &amp;&amp; description.startsWith('Trip Sheet ')]}">
             <td th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</td>
             <td th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',0,'POINT')}">0</td>
           </tr>
@@ -331,10 +362,16 @@
     <div class="section-title">Hire Charges</div>
     <div class="charges">
       <table class="hire-lines">
-        <tr><td>1. Minimum 1 Hrs Charges</td><td>:</td></tr>
-        <tr><td>2. Minimum 2 Hrs Charges</td><td>:</td></tr>
-        <tr><td>3. Additional Hrs</td><td>:</td></tr>
-        <tr><td>4. Betta</td><td>:</td></tr>
+        <thead>
+          <tr><th>Work / Charge</th><th>Units</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="item, iter : ${invoice.items}">
+            <td th:text="${iter.count + '. ' + item.description}">1. Minimum 1 Hrs Charges</td>
+            <td th:text="${#numbers.formatDecimal(item.hoursOrUnits,0,'COMMA',2,'POINT')}">1.00</td>
+            <td th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">0.00</td>
+          </tr>
+        </tbody>
       </table>
       <table class="totals">
         <tr><td>Total</td><td th:text="${#numbers.formatDecimal(invoice.taxableAmount,0,'COMMA',2,'POINT')}">0</td></tr>

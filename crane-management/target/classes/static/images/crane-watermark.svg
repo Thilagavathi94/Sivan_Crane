@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+  <g fill="none" stroke="#0f1b3d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="1">
+    <!-- ground -->
+    <line x1="20" y1="370" x2="580" y2="370"/>
+    <!-- crane body / cab -->
+    <rect x="120" y="290" width="90" height="80" rx="6"/>
+    <rect x="140" y="260" width="55" height="40" rx="4"/>
+    <!-- wheels -->
+    <circle cx="145" cy="372" r="18"/>
+    <circle cx="195" cy="372" r="18"/>
+    <circle cx="145" cy="372" r="6"/>
+    <circle cx="195" cy="372" r="6"/>
+    <!-- outriggers -->
+    <line x1="120" y1="360" x2="90" y2="378"/>
+    <line x1="210" y1="360" x2="240" y2="378"/>
+    <!-- mast -->
+    <line x1="205" y1="300" x2="205" y2="120"/>
+    <line x1="220" y1="300" x2="220" y2="140"/>
+    <!-- boom -->
+    <polygon points="210,130 560,50 560,66 218,150"/>
+    <!-- lattice on boom -->
+    <line x1="250" y1="140" x2="270" y2="108"/>
+    <line x1="300" y1="130" x2="320" y2="98"/>
+    <line x1="350" y1="120" x2="370" y2="88"/>
+    <line x1="400" y1="110" x2="420" y2="78"/>
+    <line x1="450" y1="100" x2="470" y2="68"/>
+    <line x1="500" y1="90" x2="520" y2="58"/>
+    <!-- hoist cable + hook -->
+    <line x1="550" y1="55" x2="550" y2="200"/>
+    <path d="M550 200 q0 20 20 20"/>
+    <!-- counterweight -->
+    <rect x="150" y="118" width="35" height="26"/>
+  </g>
+</svg>
