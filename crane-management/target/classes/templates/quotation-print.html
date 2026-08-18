@@ -148,20 +148,14 @@
       <thead>
         <tr>
           <th>Description</th>
-          <th class="num">Hours/Units</th>
-          <th class="num">Rate</th>
-          <th class="num">Amount</th>
-          <th class="num">Addl. Hours</th>
-          <th class="num">Addl. Amount</th>
+          <th class="num">Hour Amount</th>
+          <th class="num">Additional Hour Amount</th>
         </tr>
       </thead>
       <tbody>
         <tr th:each="item : ${quotation.items}">
           <td th:text="${item.description}">17 Ton Hydra Crane</td>
-          <td class="num" th:text="${item.hoursOrUnits}">8</td>
-          <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.ratePerHour,0,'COMMA',2,'POINT')}">₹0.00</td>
           <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
-          <td class="num" th:text="${item.additionalHours != null and item.additionalHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.additionalHours : '-'}">-</td>
           <td class="num">
             <span th:if="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
                   th:text="'₹' + ${#numbers.formatDecimal(item.additionalAmount,0,'COMMA',2,'POINT')}">₹0.00</span>

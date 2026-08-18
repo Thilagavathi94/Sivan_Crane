@@ -37,23 +37,12 @@ public class QuotationService {
         BigDecimal subtotal = BigDecimal.ZERO;
         for (QuotationItem item : quotation.getItems()) {
             item.setQuotation(quotation);
-            BigDecimal hours = item.getHoursOrUnits() != null ? item.getHoursOrUnits() : BigDecimal.ZERO;
-            BigDecimal rate = item.getRatePerHour() != null ? item.getRatePerHour() : BigDecimal.ZERO;
-            item.setHoursOrUnits(hours);
-            item.setRatePerHour(rate);
-            BigDecimal amount = rate.multiply(hours).setScale(2, RoundingMode.HALF_UP);
-            item.setAmount(amount);
+            BigDecimal amount = item.getAmount() != null ? item.getAmount() : BigDecimal.ZERO;
+            BigDecimal additionalAmount = item.getAdditionalAmount() != null ? item.getAdditionalAmount() : BigDecimal.ZERO;
+            item.setAmount(amount.setScale(2, RoundingMode.HALF_UP));
+            item.setAdditionalAmount(additionalAmount.setScale(2, RoundingMode.HALF_UP));
 
-            BigDecimal additionalHours = item.getAdditionalHours() != null ? item.getAdditionalHours() : BigDecimal.ZERO;
-            // If no additional rate was given, fall back to the crane's normal hourly rate
-            BigDecimal additionalRate = (item.getAdditionalRate() != null && item.getAdditionalRate().compareTo(BigDecimal.ZERO) > 0)
-                    ? item.getAdditionalRate() : rate;
-            item.setAdditionalHours(additionalHours);
-            item.setAdditionalRate(additionalRate);
-            BigDecimal additionalAmount = additionalRate.multiply(additionalHours).setScale(2, RoundingMode.HALF_UP);
-            item.setAdditionalAmount(additionalAmount);
-
-            subtotal = subtotal.add(amount).add(additionalAmount);
+            subtotal = subtotal.add(item.getAmount()).add(item.getAdditionalAmount());
         }
         quotation.setSubtotal(subtotal);
 

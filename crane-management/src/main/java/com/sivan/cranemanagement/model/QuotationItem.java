@@ -23,13 +23,10 @@ public class QuotationItem {
 
     private BigDecimal ratePerHour = BigDecimal.ZERO;
 
-    // Extra hours worked beyond the base hours, billed for this crane (e.g. overtime)
     private BigDecimal additionalHours = BigDecimal.ZERO;
 
-    // Rate applied to the additional hours above. Defaults to ratePerHour if left blank.
     private BigDecimal additionalRate = BigDecimal.ZERO;
 
-    // additionalHours * additionalRate, calculated on save
     private BigDecimal additionalAmount = BigDecimal.ZERO;
 
     private BigDecimal amount = BigDecimal.ZERO;

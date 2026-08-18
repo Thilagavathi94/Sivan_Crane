@@ -50,24 +50,20 @@
               <thead>
                 <tr>
                   <th>Description</th>
-                  <th>Hours/Units</th>
-                  <th>Rate</th>
-                  <th>Addl. Hours</th>
-                  <th>Addl. Rate</th>
+                  <th>Hour Amount</th>
+                  <th>Additional Hour Amount</th>
                 </tr>
               </thead>
               <tbody>
                 <tr th:each="item, iter : *{items}">
                   <td><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="e.g. 17 Ton Hydra Crane"></td>
-                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm"></td>
-                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].ratePerHour}" class="form-control form-control-sm"></td>
-                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].additionalHours}" class="form-control form-control-sm" placeholder="0" title="Extra/overtime hours for this crane"></td>
-                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalRate}" class="form-control form-control-sm" placeholder="Same as rate" title="Leave blank to use the normal rate"></td>
+                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].amount}" class="form-control form-control-sm" placeholder="0"></td>
+                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalAmount}" class="form-control form-control-sm" placeholder="0"></td>
                 </tr>
               </tbody>
             </table>
             </div>
-            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Tip: use "Addl. Hours" for any extra/overtime hours worked by that crane beyond the base hours. Leave "Addl. Rate" blank to bill it at the same rate as the crane.</p>
+            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Enter the base hour amount and any additional hour amount directly. No rate calculation is applied.</p>
 
             <div class="row">
               <div class="col-12 mb-2">

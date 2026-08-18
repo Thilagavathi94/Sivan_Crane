@@ -133,6 +133,9 @@ CREATE TABLE IF NOT EXISTS quotation_items (
   description VARCHAR(255),
   hours_or_units DECIMAL(10,2) DEFAULT 0,
   rate_per_hour DECIMAL(12,2) DEFAULT 0,
+  additional_hours DECIMAL(10,2) DEFAULT 0,
+  additional_rate DECIMAL(12,2) DEFAULT 0,
+  additional_amount DECIMAL(12,2) DEFAULT 0,
   amount DECIMAL(12,2) DEFAULT 0,
   CONSTRAINT fk_qitem_quotation FOREIGN KEY (quotation_id) REFERENCES quotations(id) ON DELETE CASCADE
 );
