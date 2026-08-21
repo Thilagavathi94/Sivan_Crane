@@ -110,7 +110,6 @@ public class InvoiceService {
         invoice.setManualRunningHours(nonNull(invoice.getManualRunningHours()));
         invoice.setManualAmount(nonNull(invoice.getManualAmount()));
         if (invoice.getTripSheet() == null
-                && invoice.getBooking() == null
                 && invoice.getManualAmount().compareTo(BigDecimal.ZERO) > 0) {
             InvoiceItem manualItem = new InvoiceItem();
             manualItem.setDescription("Manual Trip Sheet Amount");

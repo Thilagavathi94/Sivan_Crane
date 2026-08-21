@@ -36,7 +36,9 @@ public class Quotation {
 
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    private String billingBasis = "Daily"; // Daily / Monthly
+    private String billingBasis = "Daily"; // Hourly / Daily / Monthly
+
+    private String shift = "Day"; // Day / Night — applies to the whole quotation
 
     @Column(length = 1000)
     private String notes;

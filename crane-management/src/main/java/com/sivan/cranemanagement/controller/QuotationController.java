@@ -38,7 +38,7 @@ public class QuotationController {
     }
 
     private Quotation padItems(Quotation quotation) {
-        while (quotation.getItems().size() < 5) {
+        while (quotation.getItems().size() < 6) {
             quotation.getItems().add(new QuotationItem());
         }
         return quotation;

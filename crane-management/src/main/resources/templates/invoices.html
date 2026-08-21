@@ -23,6 +23,9 @@
           <div class="alert alert-info py-2" style="font-size:13px;" th:if="${invoice.booking != null and invoice.tripSheet != null}">
             Generated from Booking <b th:text="${invoice.booking.bookingNo}"></b>. All trip sheet amounts for this booking are loaded below.
           </div>
+          <div class="alert alert-warning py-2" style="font-size:13px;" th:if="${invoice.booking != null and invoice.tripSheet == null}">
+            Selected booking <b th:text="${invoice.booking.bookingNo}"></b> has no trip sheet. Enter the manual trip sheet details below.
+          </div>
           <div class="alert alert-secondary py-2" style="font-size:13px;" th:if="${invoice.tripSheet == null}">
             Manual invoice: if no trip sheet is available, select the customer and enter hire charges below.
           </div>
@@ -68,7 +71,7 @@
               </div>
             </div>
 
-            <div class="border rounded p-2 mb-2 bg-light" th:if="${invoice.booking == null and invoice.tripSheet == null}">
+            <div class="border rounded p-2 mb-2 bg-light" th:if="${invoice.tripSheet == null}">
               <div class="fw-bold mb-2" style="font-size:13px;">Manual Trip Sheet Entry</div>
               <div class="row g-2">
                 <div class="col-md-4">

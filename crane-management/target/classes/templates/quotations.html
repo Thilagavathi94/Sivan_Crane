@@ -35,35 +35,105 @@
                 <input type="date" th:field="*{quotationDate}" class="form-control">
               </div>
             </div>
-            <div class="mb-2">
-              <label class="form-label">Billing Basis</label>
-              <select th:field="*{billingBasis}" class="form-select">
-                <option value="Hourly">Hourly Basis</option>
-                <option value="Daily">Daily Basis</option>
-                <option value="Monthly">Monthly Basis</option>
-              </select>
+            <div class="row">
+              <div class="col-7 mb-2">
+                <label class="form-label">Billing Basis</label>
+                <select th:field="*{billingBasis}" id="billingBasis" class="form-select" onchange="applyBasisColumns()">
+                  <option value="Hourly">Hourly Basis</option>
+                  <option value="Daily">Daily Basis</option>
+                  <option value="Monthly">Monthly Basis</option>
+                </select>
+              </div>
+              <div class="col-5 mb-2">
+                <label class="form-label">Day / Night</label>
+                <select th:field="*{shift}" class="form-select">
+                  <option value="Day">Day</option>
+                  <option value="Night">Night</option>
+                </select>
+              </div>
             </div>
 
             <label class="form-label mt-2 fw-bold">Items (per crane)</label>
             <div class="table-responsive">
-            <table class="table table-sm align-middle">
+            <table class="table table-sm align-middle items-table" id="itemsTable" th:attr="data-row-count=${quotation.items.size()}">
               <thead>
                 <tr>
-                  <th>Description</th>
-                  <th>Hour Amount</th>
-                  <th>Additional Hour Amount</th>
+                  <th>Crane Capacity</th>
+                  <th id="thPeriod" class="col-period">Month</th>
+                  <th id="thPeriodDays" class="col-perioddays">Days</th>
+                  <th id="thHours">Minimum Hour</th>
+                  <th>Amount</th>
+                  <th id="thAddHours">Additional Hour</th>
+                  <th>Additional Amount</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="itemsTableBody">
                 <tr th:each="item, iter : *{items}">
-                  <td><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="e.g. 17 Ton Hydra Crane"></td>
-                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].amount}" class="form-control form-control-sm" placeholder="0"></td>
-                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalAmount}" class="form-control form-control-sm" placeholder="0"></td>
+                  <td class="col-desc"><input type="text" th:field="*{items[__${iter.index}__].description}" class="form-control form-control-sm" placeholder="e.g. 17 Ton Crane"></td>
+                  <td class="col-period"><input type="text" th:field="*{items[__${iter.index}__].periodLabel}" class="form-control form-control-sm" placeholder="e.g. 1 Month"></td>
+                  <td class="col-perioddays"><input type="number" step="1" th:field="*{items[__${iter.index}__].periodDays}" class="form-control form-control-sm" placeholder="26"></td>
+                  <td class="col-hours"><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm" placeholder="1"></td>
+                  <td class="col-amount"><input type="number" step="0.01" th:field="*{items[__${iter.index}__].amount}" class="form-control form-control-sm" placeholder="0"></td>
+                  <td class="col-addhours"><input type="number" step="0.5" th:field="*{items[__${iter.index}__].additionalHours}" class="form-control form-control-sm" placeholder="1"></td>
+                  <td class="col-addamount"><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalAmount}" class="form-control form-control-sm" placeholder="0"></td>
                 </tr>
               </tbody>
             </table>
             </div>
-            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Enter the base hour amount and any additional hour amount directly. No rate calculation is applied.</p>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="addRowBtn" onclick="addItemRow()">+ Add Row</button>
+            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Enter the amounts directly. Columns shown change automatically based on the Billing Basis selected above.</p>
+            <script>
+              // Which columns are visible for each billing basis.
+              // "period" = text period label (used as "Month" on Monthly basis)
+              // "perioddays" = numeric day count (used as "Days" on Daily basis, "Day" on Monthly basis)
+              var BASIS_CONFIG = {
+                Hourly:  { period: false, perioddays: false, hoursLabel: 'Minimum Hour', daysLabel: 'Days' },
+                Daily:   { period: false, perioddays: true,  hoursLabel: 'Hrs', daysLabel: 'Days' },
+                Monthly: { period: true,  perioddays: true,  hoursLabel: 'Working Hour', daysLabel: 'Day' }
+              };
+
+              function setColVisible(el, visible) {
+                if (!el) return;
+                el.classList.toggle('d-none', !visible);
+                var input = el.tagName === 'TD' ? el.querySelector('input,select') : null;
+                if (input) input.disabled = !visible;
+              }
+
+              function applyBasisColumns() {
+                var sel = document.getElementById('billingBasis');
+                var table = document.getElementById('itemsTable');
+                if (!sel || !table) return;
+                var cfg = BASIS_CONFIG[sel.value] || BASIS_CONFIG.Daily;
+
+                document.getElementById('thHours').textContent = cfg.hoursLabel;
+                document.getElementById('thPeriod').textContent = 'Month';
+                document.getElementById('thPeriodDays').textContent = cfg.daysLabel;
+
+                table.querySelectorAll('.col-period').forEach(function (el) { setColVisible(el, cfg.period); });
+                table.querySelectorAll('.col-perioddays').forEach(function (el) { setColVisible(el, cfg.perioddays); });
+              }
+
+              function addItemRow() {
+                var table = document.getElementById('itemsTable');
+                var tbody = document.getElementById('itemsTableBody');
+                if (!table || !tbody) return;
+                var idx = parseInt(table.getAttribute('data-row-count'), 10) || 0;
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                  '<td class="col-desc"><input type="text" name="items[' + idx + '].description" class="form-control form-control-sm" placeholder="e.g. 17 Ton Crane"></td>' +
+                  '<td class="col-period"><input type="text" name="items[' + idx + '].periodLabel" class="form-control form-control-sm" placeholder="e.g. 1 Month"></td>' +
+                  '<td class="col-perioddays"><input type="number" step="1" name="items[' + idx + '].periodDays" class="form-control form-control-sm" placeholder="26"></td>' +
+                  '<td class="col-hours"><input type="number" step="0.5" name="items[' + idx + '].hoursOrUnits" class="form-control form-control-sm" placeholder="1"></td>' +
+                  '<td class="col-amount"><input type="number" step="0.01" name="items[' + idx + '].amount" class="form-control form-control-sm" placeholder="0"></td>' +
+                  '<td class="col-addhours"><input type="number" step="0.5" name="items[' + idx + '].additionalHours" class="form-control form-control-sm" placeholder="1"></td>' +
+                  '<td class="col-addamount"><input type="number" step="0.01" name="items[' + idx + '].additionalAmount" class="form-control form-control-sm" placeholder="0"></td>';
+                tbody.appendChild(tr);
+                table.setAttribute('data-row-count', idx + 1);
+                applyBasisColumns();
+              }
+
+              document.addEventListener('DOMContentLoaded', applyBasisColumns);
+            </script>
 
             <div class="row">
               <div class="col-12 mb-2">
@@ -85,21 +155,20 @@
           <div class="panel-title">All Quotations</div>
           <div class="table-responsive">
             <table class="table table-sm">
-              <thead><tr><th>Quo No</th><th>Customer</th><th>Date</th><th>Basis</th><th>Total</th><th>Action</th></tr></thead>
+              <thead><tr><th>Quo No</th><th>Customer</th><th>Date</th><th>Basis</th><th>Action</th></tr></thead>
               <tbody>
                 <tr th:each="q : ${quotations}">
                   <td th:text="${q.quotationNo}">QUO-00001</td>
                   <td th:text="${q.customer.name}">Customer</td>
                   <td th:text="${q.quotationDate}">2026-07-21</td>
                   <td th:text="${q.billingBasis}">Daily</td>
-                  <td th:text="'₹' + ${#numbers.formatDecimal(q.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
                   <td>
                     <a th:href="@{'/quotations/edit/' + ${q.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
                     <a th:href="@{'/quotations/print/' + ${q.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">🖨️ PDF</a>
                     <a th:href="@{'/quotations/convert-to-booking/' + ${q.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Create a new Booking from this quotation?')">Booking</a>
                   </td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(quotations)}"><td colspan="6" class="text-center text-muted">No quotations yet</td></tr>
+                <tr th:if="${#lists.isEmpty(quotations)}"><td colspan="5" class="text-center text-muted">No quotations yet</td></tr>
               </tbody>
             </table>
           </div>
