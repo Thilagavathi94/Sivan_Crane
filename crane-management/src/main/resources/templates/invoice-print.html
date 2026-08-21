@@ -8,16 +8,16 @@
     * { box-sizing: border-box; }
 
     :root {
-      --brand: #1d4ed8;
-      --brand-dark: #1e3a8a;
-      --brand-light: #eef2ff;
+      --brand: #f2b51d;
+      --brand-dark: #17213b;
+      --brand-light: #fff3c7;
       --ink: #1f2937;
       --muted: #6b7280;
-      --line: #d9dee7;
+      --line: #d8c38a;
       --line-strong: #1f2937;
       --bg: #eef1f6;
       --paper: #ffffff;
-      --accent: #0ea5e9;
+      --accent: #ffe08a;
       --good: #16a34a;
     }
 
@@ -73,10 +73,10 @@
       width: 760px;
       max-width: 88%;
       height: auto;
-      opacity: 0.11;
+      opacity: 0.18;
       pointer-events: none;
       z-index: 0;
-      filter: saturate(.9);
+      filter: saturate(1.05);
     }
     .sheet > *:not(.watermark) { position: relative; z-index: 1; }
     .logo-mark {
@@ -90,48 +90,61 @@
     }
 
     .head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
       text-align: center;
-      padding: 26px 24px 18px;
-      background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--accent) 100%);
-      color: #fff;
+      padding: 14px 22px 12px;
+      background: linear-gradient(180deg, #fff4c9 0%, #fff 100%);
+      color: var(--ink);
       position: relative;
+      border: 2px solid var(--line);
+      border-bottom: 4px solid var(--brand);
     }
     .head::after {
       content: "";
       display: block;
       height: 4px;
-      margin-top: 18px;
-      background: rgba(255,255,255,.35);
+      margin-top: 12px;
+      background: var(--brand);
       border-radius: 2px;
+    }
+    .head-main { flex: 1; }
+    .header-crane {
+      width: 78px;
+      height: 78px;
+      border-radius: 8px;
+      border: 2px solid var(--brand);
+      object-fit: cover;
+      object-position: center;
+      background: #fff;
     }
     h1 {
       margin: 0;
-      font-size: 27px;
-      letter-spacing: 1px;
+      font-size: 34px;
+      letter-spacing: 0;
       font-weight: 800;
-      text-shadow: 0 1px 2px rgba(0,0,0,.15);
     }
-    .sub { font-size: 12.5px; margin-top: 6px; color: rgba(255,255,255,.9); }
+    .sub { font-size: 14px; margin-top: 5px; color: var(--ink); }
     .gst {
       display: inline-block;
-      margin-top: 10px;
-      font-weight: 700;
-      font-size: 12.5px;
-      color: #fff;
-      background: rgba(255,255,255,.18);
-      padding: 4px 12px;
-      border-radius: 20px;
-      letter-spacing: .4px;
+      margin-top: 5px;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--brand-dark);
+      letter-spacing: 0;
     }
+    .phone { font-size: 13px; margin-top: 3px; color: var(--ink); }
 
     .bill-row {
       display: grid;
       grid-template-columns: 1fr 230px;
-      border-bottom: 1px solid var(--line);
+      border: 1px solid var(--line);
+      border-top: 0;
     }
     .customer { padding: 18px 22px; min-height: 108px; }
     .customer > div:first-child {
-      color: var(--brand);
+      color: var(--brand-dark);
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: .6px;
@@ -184,7 +197,7 @@
       text-align: center;
       color: var(--brand-dark);
       font-weight: 800;
-      margin: 22px 0 12px;
+      margin: 14px 0 8px;
       font-size: 15px;
       letter-spacing: 1.2px;
       text-transform: uppercase;
@@ -201,9 +214,9 @@
     .section-title::before { left: 22px; }
     .section-title::after { right: 22px; }
 
-    .work { display: grid; grid-template-columns: 1fr 260px; gap: 16px; padding: 0 22px; }
+    .work { display: grid; grid-template-columns: 1fr 280px; gap: 14px; padding: 0 22px; }
     .details { border-collapse: collapse; width: 100%; }
-    .details td { padding: 7px 4px; font-size: 13.5px; }
+    .details td { padding: 4px 4px; font-size: 13.5px; }
     .details td:first-child { width: 150px; font-weight: 700; color: var(--muted); }
 
     .trip-table {
@@ -218,16 +231,17 @@
     .trip-table th {
       background: var(--brand-light);
       color: var(--brand-dark);
-      padding: 8px;
+      padding: 10px 12px;
       text-align: right;
       font-size: 12px;
       text-transform: uppercase;
     }
     .trip-table th:first-child, .trip-table td:first-child { text-align: left; }
-    .trip-table td { padding: 8px; text-align: right; border-top: 1px solid var(--line); }
+    .trip-table td { padding: 10px 12px; text-align: right; border-top: 1px solid var(--line); }
     .trip-table tbody tr:nth-child(even) { background: #f8fafc; }
 
-    .charges { display: grid; grid-template-columns: 1fr 260px; gap: 22px; margin: 6px 22px 0; align-items: start; }
+    .charges { display: grid; grid-template-columns: 1fr 280px; gap: 18px; margin: 6px 22px 0; align-items: start; }
+    .summary-row { display: grid; grid-template-columns: 1fr 350px; gap: 24px; margin: 10px 22px 0; align-items: start; }
     .hire-lines { border-collapse: collapse; width: 100%; }
     .hire-lines th {
       background: var(--brand-light);
@@ -250,7 +264,7 @@
       border-radius: 8px;
       overflow: hidden;
     }
-    .totals td { padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .totals td { padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
     .totals td:last-child { text-align: right; font-weight: 600; }
     .totals tr:last-of-type td { border-bottom: none; }
     .totals .grand {
@@ -263,12 +277,23 @@
       color: var(--brand-dark);
     }
 
-    .words {
-      margin: 20px 22px 0;
-      background: #fafbff;
-      border: 1px dashed #b9c4dd;
+    .bank-box {
+      margin: 0;
+      border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px 16px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      min-height: 128px;
+    }
+    .bank-box b { color: var(--brand-dark); }
+    .bank-title { font-weight: 800; color: var(--brand-dark); margin-bottom: 4px; text-transform: uppercase; }
+
+    .words {
+      margin: 10px 22px 0;
+      background: #fff9e5;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
       min-height: 20px;
       font-size: 13.5px;
     }
@@ -277,27 +302,29 @@
     .footer {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      margin: 28px 22px 0;
+      margin: 14px 22px 0;
       border-top: 1px solid var(--line);
     }
-    .footer div { padding: 22px 10px 24px; min-height: 80px; font-size: 13.5px; color: var(--muted); }
+    .footer div { padding: 14px 10px 16px; min-height: 60px; font-size: 13.5px; color: var(--muted); }
     .footer div:last-child {
       border-left: 1px solid var(--line);
       text-align: center;
       font-weight: 700;
       color: var(--ink);
     }
-    .manager { margin-top: 42px; font-weight: 600; }
+    .manager { margin-top: 28px; font-weight: 600; }
 
     .sheet-bottom-pad { height: 22px; }
 
     @media print {
+      @page { size: A4; margin: 8mm; }
       body { background: #fff; padding: 0; }
       .toolbar { display: none; }
       .sheet { width: 100%; border-radius: 0; box-shadow: none; }
       .head { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .right-title, .service th, .trip-table th, .totals .grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .sheet .watermark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .sheet .watermark { opacity: 0.22; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .summary-row { break-inside: avoid; }
     }
   </style>
 </head>
@@ -310,10 +337,14 @@
   <div class="sheet">
     <img class="watermark" th:src="@{/images/invoice-crane-background.png}" alt="">
     <div class="head">
-      <img class="logo-mark" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service">
-      <h1>SIVAN CRANE SERVICES</h1>
-      <div class="sub">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</div>
-      <div class="gst">GSTIN : 33GTWPS5321H1Z5</div>
+      <img class="header-crane" th:src="@{/images/invoice-crane-background.png}" alt="Sivan Crane Service">
+      <div class="head-main">
+        <h1>SIVAN CRANE SERVICES</h1>
+        <div class="sub">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</div>
+        <div class="gst">GSTIN : 33GTWPS5321H1Z5</div>
+        <div class="phone">Cell : 98422 23358 / 88384 27277</div>
+      </div>
+      <img class="header-crane" th:src="@{/images/invoice-crane-background.png}" alt="Sivan Crane Service">
     </div>
 
     <div class="bill-row">
@@ -341,38 +372,46 @@
     <div class="section-title">Work Details</div>
     <div class="work">
       <table class="details">
-        <tr><td>Crane Capacity</td><td>12T / 14T / 15T / 16T / 17T / 50T / 30T</td></tr>
-        <tr><td>Trip Sheet No.</td><td>&nbsp;</td></tr>
-        <tr><td>Date</td><td>&nbsp;</td></tr>
-        <tr><td>Running Hours</td><td>&nbsp;</td></tr>
+        <tr><td>Crane Capacity</td><td>8 / 10 / 12 / 14 / 16 / 40 / 60 Tones Telescope</td></tr>
+        <tr>
+          <td>Crane No.</td>
+          <td th:text="${invoice.booking == null and invoice.tripSheet != null and invoice.tripSheet.crane != null ? invoice.tripSheet.crane.craneNo : (invoice.tripSheet == null and invoice.manualCraneNo != null and !#strings.isEmpty(invoice.manualCraneNo) ? invoice.manualCraneNo : '')}">&nbsp;</td>
+        </tr>
+        <tr>
+          <td>Trip Sheet No.</td>
+          <td th:text="${invoice.booking == null and invoice.tripSheet != null ? invoice.tripSheet.tripSheetNo : (invoice.tripSheet == null and invoice.manualTripSheetNo != null and !#strings.isEmpty(invoice.manualTripSheetNo) ? invoice.manualTripSheetNo : '')}">&nbsp;</td>
+        </tr>
+        <tr>
+          <td>Date</td>
+          <td th:text="${invoice.booking == null and invoice.tripSheet != null ? invoice.tripSheet.tripDate : (invoice.tripSheet == null and invoice.manualTripDate != null ? invoice.manualTripDate : '')}">&nbsp;</td>
+        </tr>
+        <tr>
+          <td>Running Hours</td>
+          <td th:text="${invoice.booking == null and invoice.tripSheet != null ? invoice.tripSheet.totalHours : (invoice.tripSheet == null and invoice.manualRunningHours != null and invoice.manualRunningHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? invoice.manualRunningHours : '')}">&nbsp;</td>
+        </tr>
       </table>
 
       <table class="trip-table"
-             th:if="${invoice.items.?[description != null &amp;&amp; description.startsWith('Trip Sheet ')].size() > 0}">
+             th:if="${invoice.items.?[description != null &amp;&amp; (description.startsWith('Trip Sheet ') || description == 'Manual Trip Sheet Amount')].size() > 0}">
         <thead><tr><th>Trip</th><th>Amount</th></tr></thead>
         <tbody>
-          <tr th:each="item : ${invoice.items.?[description != null &amp;&amp; description.startsWith('Trip Sheet ')]}">
-            <td th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</td>
+          <tr th:each="item : ${invoice.items.?[description != null &amp;&amp; (description.startsWith('Trip Sheet ') || description == 'Manual Trip Sheet Amount')]}">
+            <td th:text="${item.description == 'Manual Trip Sheet Amount' ? (invoice.manualTripSheetNo != null and !#strings.isEmpty(invoice.manualTripSheetNo) ? invoice.manualTripSheetNo : 'Manual') : #strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</td>
             <td th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',0,'POINT')}">0</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="section-title">Hire Charges</div>
-    <div class="charges">
-      <table class="hire-lines">
-        <thead>
-          <tr><th>Work / Charge</th><th>Units</th><th>Amount</th></tr>
-        </thead>
-        <tbody>
-          <tr th:each="item, iter : ${invoice.items}">
-            <td th:text="${iter.count + '. ' + item.description}">1. Minimum 1 Hrs Charges</td>
-            <td th:text="${#numbers.formatDecimal(item.hoursOrUnits,0,'COMMA',2,'POINT')}">1.00</td>
-            <td th:text="${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">0.00</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="summary-row">
+      <div class="bank-box">
+        <div class="bank-title">Bank Details</div>
+        <b>Acc. Name:</b> Sivan Crane Service<br>
+        <b>Acc. No.:</b> 91802009319318<br>
+        <b>IFSC:</b> UTIB0003300<br>
+        <b>Bank:</b> Axis Bank<br>
+        <b>Branch:</b> Thudiyalur
+      </div>
       <table class="totals">
         <tr><td>Total</td><td th:text="${#numbers.formatDecimal(invoice.taxableAmount,0,'COMMA',2,'POINT')}">0</td></tr>
         <tr><td>CGST</td><td th:text="${#numbers.formatDecimal(invoice.cgstAmount,0,'COMMA',2,'POINT')}">0</td></tr>

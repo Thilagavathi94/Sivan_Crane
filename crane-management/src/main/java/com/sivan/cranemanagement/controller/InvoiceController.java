@@ -19,13 +19,15 @@ public class InvoiceController {
     private final BookingService bookingService;
     private final CustomerService customerService;
     private final TripSheetService tripSheetService;
+    private final CraneService craneService;
 
     public InvoiceController(InvoiceService invoiceService, BookingService bookingService, CustomerService customerService,
-                              TripSheetService tripSheetService) {
+                              TripSheetService tripSheetService, CraneService craneService) {
         this.invoiceService = invoiceService;
         this.bookingService = bookingService;
         this.customerService = customerService;
         this.tripSheetService = tripSheetService;
+        this.craneService = craneService;
     }
 
     @GetMapping
@@ -34,6 +36,7 @@ public class InvoiceController {
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("tripSheets", tripSheetService.findAll());
+        model.addAttribute("cranes", craneService.findAll());
         model.addAttribute("invoice", padItems(new Invoice()));
         return "invoices";
     }
@@ -60,6 +63,7 @@ public class InvoiceController {
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("tripSheets", tripSheetService.findAll());
+        model.addAttribute("cranes", craneService.findAll());
         model.addAttribute("invoice", padItems(invoiceService.buildFromTripSheet(tripSheetId, ratePerHour, mobilizationCharge)));
         return "invoices";
     }
@@ -70,6 +74,7 @@ public class InvoiceController {
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("tripSheets", tripSheetService.findAll());
+        model.addAttribute("cranes", craneService.findAll());
         model.addAttribute("invoice", padItems(invoiceService.buildFromBooking(bookingId)));
         return "invoices";
     }
@@ -113,6 +118,7 @@ public class InvoiceController {
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("tripSheets", tripSheetService.findAll());
+        model.addAttribute("cranes", craneService.findAll());
         model.addAttribute("invoice", padItems(invoiceService.findById(id)));
         return "invoices";
     }

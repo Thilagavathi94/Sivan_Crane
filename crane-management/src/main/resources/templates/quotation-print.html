@@ -6,9 +6,10 @@
   <title th:text="'Quotation ' + ${quotation.quotationNo}">Quotation</title>
   <style>
     :root {
-      --navy: #0f1b3d;
-      --orange: #f7941d;
-      --border: #d7dce8;
+      --navy: #17213b;
+      --orange: #f2b51d;
+      --yellow: #ffe08a;
+      --border: #d8c38a;
     }
     * { box-sizing: border-box; }
     body {
@@ -36,7 +37,7 @@
       width: 780px;
       max-width: 92%;
       height: auto;
-      opacity: 0.12;
+      opacity: 0.17;
       pointer-events: none;
       z-index: 0;
     }
@@ -58,25 +59,36 @@
       text-decoration: none;
       display: inline-block;
     }
-    .btn-print { background: var(--orange); color: #fff; }
+    .btn-print { background: var(--orange); color: var(--navy); }
     .btn-back { background: #fff; color: var(--navy); border: 1px solid var(--border) !important; }
 
     .head {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 3px solid var(--orange);
-      padding-bottom: 16px;
-      margin-bottom: 24px;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      border: 2px solid var(--border);
+      border-bottom: 4px solid var(--orange);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      background: linear-gradient(180deg, #fff4c9 0%, #fff 100%);
     }
-    .head .brand { display: flex; align-items: center; gap: 12px; }
+    .head .brand { flex: 1; text-align: center; }
     .head .brand .badge {
-      width: 50px; height: 50px; border-radius: 10px;
-      object-fit: contain;
-      flex-shrink: 0;
+      display: none;
     }
-    .head .brand h1 { margin: 0; font-size: 19px; color: var(--navy); }
-    .head .brand p { margin: 2px 0 0 0; font-size: 12px; color: #6b7280; }
+    .header-crane {
+      width: 74px;
+      height: 74px;
+      border-radius: 8px;
+      border: 2px solid var(--orange);
+      object-fit: cover;
+      object-position: center;
+      background: #fff;
+    }
+    .head .brand h1 { margin: 0; font-size: 31px; color: var(--navy); }
+    .head .brand p { margin: 3px 0 0 0; font-size: 14px; color: #1f2937; }
+    .head .brand .gst { font-size: 16px; font-weight: 800; color: var(--navy); }
     .head .doc-title { text-align: right; }
     .head .doc-title h2 { margin: 0; color: var(--orange); font-size: 22px; letter-spacing: 1px; }
     .head .doc-title p { margin: 2px 0 0 0; font-size: 13px; color: #6b7280; }
@@ -96,12 +108,27 @@
     .footer .sign .line { margin-top: 40px; border-top: 1px solid #333; width: 160px; }
 
     .note { margin-top: 24px; font-size: 12px; color: #6b7280; border-top: 1px dashed var(--border); padding-top: 12px; }
+    .gst-extra-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 15px;
+    }
+    .quote-model-note {
+      margin-top: 8px;
+      text-align: center;
+      color: #374151;
+      font-size: 13px;
+      line-height: 1.6;
+    }
 
     @media print {
       body { background: #fff; padding: 0; }
       .toolbar { display: none; }
       .sheet { box-shadow: none; padding: 0; max-width: 100%; }
-      .sheet .watermark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .sheet .watermark { opacity: 0.2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .head, thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -115,14 +142,17 @@
   <div class="sheet">
     <img class="watermark" th:src="@{/images/quotation-crane-background.png}" alt="">
     <div class="head">
+      <img class="header-crane" th:src="@{/images/quotation-crane-background.png}" alt="Sivan Crane Service">
       <div class="brand">
         <img class="badge" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service" style="width:50px;height:50px;border-radius:10px;">
         <div>
-          <h1>SIVAN CRANE SERVICE</h1>
-          <p>Crane Hiring &amp; GST Billing Services</p>
-          <p>GSTIN: 33GTWPS5321H1Z5 &nbsp;|&nbsp; Ph: +91 98765 43210</p>
+          <h1>SIVAN CRANE SERVICES</h1>
+          <p>103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</p>
+          <p class="gst">GSTIN : 33GTWPS5321H1Z5</p>
+          <p>Cell : 98422 23358 / 88384 27277</p>
         </div>
       </div>
+      <img class="header-crane" th:src="@{/images/quotation-crane-background.png}" alt="Sivan Crane Service">
       <div class="doc-title">
         <h2>QUOTATION</h2>
         <p th:text="${quotation.quotationNo}">QUO-00001</p>
@@ -148,6 +178,7 @@
       <thead>
         <tr>
           <th>Description</th>
+          <th class="num">Hours</th>
           <th class="num">Hour Amount</th>
           <th class="num">Additional Hour Amount</th>
         </tr>
@@ -155,6 +186,7 @@
       <tbody>
         <tr th:each="item : ${quotation.items}">
           <td th:text="${item.description}">17 Ton Hydra Crane</td>
+          <td class="num" th:text="${item.hoursOrUnits != null and item.hoursOrUnits.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.hoursOrUnits : '-'}">1</td>
           <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
           <td class="num">
             <span th:if="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
@@ -164,6 +196,11 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="gst-extra-note">18% GST Extra</div>
+    <div class="quote-model-note">
+      Extra charges will be added for GST. Material handling, loading and unloading, safety work, hourly, daily and monthly basis.
+    </div>
 
     <div class="note">
       This quotation is valid for 15 days from the date of issue. Prices are subject to change based on final site conditions and work duration.

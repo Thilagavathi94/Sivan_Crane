@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class InvoiceService {
@@ -106,11 +107,24 @@ public class InvoiceService {
             invoice.setInvoiceNo(numberGeneratorService.nextInvoiceNo());
         }
 
+        invoice.setManualRunningHours(nonNull(invoice.getManualRunningHours()));
+        invoice.setManualAmount(nonNull(invoice.getManualAmount()));
+        if (invoice.getTripSheet() == null
+                && invoice.getBooking() == null
+                && invoice.getManualAmount().compareTo(BigDecimal.ZERO) > 0) {
+            InvoiceItem manualItem = new InvoiceItem();
+            manualItem.setDescription("Manual Trip Sheet Amount");
+            manualItem.setHoursOrUnits(BigDecimal.ONE);
+            manualItem.setRate(invoice.getManualAmount());
+            invoice.getItems().clear();
+            invoice.getItems().add(manualItem);
+        }
+
         BigDecimal taxable = BigDecimal.ZERO;
         for (InvoiceItem item : invoice.getItems()) {
             item.setInvoice(invoice);
-            BigDecimal hours = item.getHoursOrUnits() != null ? item.getHoursOrUnits() : BigDecimal.ZERO;
-            BigDecimal rate = item.getRate() != null ? item.getRate() : BigDecimal.ZERO;
+            BigDecimal hours = nonNull(item.getHoursOrUnits());
+            BigDecimal rate = nonNull(item.getRate());
             item.setHoursOrUnits(hours);
             item.setRate(rate);
             BigDecimal amount = rate.multiply(hours).setScale(2, RoundingMode.HALF_UP);
@@ -157,6 +171,10 @@ public class InvoiceService {
             tripSheetRepository.save(ts);
         }
         return saved;
+    }
+
+    private BigDecimal nonNull(BigDecimal value) {
+        return Objects.requireNonNullElse(value, BigDecimal.ZERO);
     }
 
     public void delete(Long id) {

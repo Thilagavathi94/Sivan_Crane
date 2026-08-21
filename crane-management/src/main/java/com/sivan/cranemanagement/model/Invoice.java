@@ -34,6 +34,17 @@ public class Invoice {
 
     private LocalDate invoiceDate;
 
+    // Manual trip details used when an invoice is created without a saved Trip Sheet.
+    private LocalDate manualTripDate;
+
+    private String manualCraneNo;
+
+    private String manualTripSheetNo;
+
+    private BigDecimal manualRunningHours = BigDecimal.ZERO;
+
+    private BigDecimal manualAmount = BigDecimal.ZERO;
+
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<InvoiceItem> items = new ArrayList<>();
 

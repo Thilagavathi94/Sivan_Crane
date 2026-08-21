@@ -68,23 +68,34 @@
               </div>
             </div>
 
-            <label class="form-label mt-2 fw-bold">Hire Charge / Trip Sheet Amounts</label>
-            <table class="table table-sm">
-              <thead><tr><th>Work / Charge</th><th>Units</th><th>Amount</th></tr></thead>
-              <tbody>
-                <tr th:each="item, iter : *{items}">
-                  <td>
-                    <input type="hidden" th:field="*{items[__${iter.index}__].description}">
-                    <div class="form-control form-control-sm bg-light"
-                         th:text="${item.description != null and !#strings.isEmpty(item.description) ? item.description : (iter.index == 0 ? 'Minimum 1 Hrs Charges' : (iter.index == 1 ? 'Minimum 2 Hrs Charges' : (iter.index == 2 ? 'Additional Hrs' : (iter.index == 3 ? 'Betta' : 'Other Charge'))))}">
-                      Minimum 1 Hrs Charges
-                    </div>
-                  </td>
-                  <td><input type="number" step="0.5" th:field="*{items[__${iter.index}__].hoursOrUnits}" class="form-control form-control-sm" th:placeholder="${iter.index == 0 ? '1' : (iter.index == 1 ? '2' : '1')}"></td>
-                  <td><input type="number" step="0.01" th:field="*{items[__${iter.index}__].rate}" class="form-control form-control-sm" placeholder="Amount"></td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="border rounded p-2 mb-2 bg-light" th:if="${invoice.booking == null and invoice.tripSheet == null}">
+              <div class="fw-bold mb-2" style="font-size:13px;">Manual Trip Sheet Entry</div>
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <label class="form-label">Date</label>
+                  <input type="date" th:field="*{manualTripDate}" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Crane No</label>
+                  <select th:field="*{manualCraneNo}" class="form-select form-select-sm">
+                    <option value="">Select Crane</option>
+                    <option th:each="c : ${cranes}" th:value="${c.craneNo}" th:text="${c.craneNo} + ' - ' + ${c.capacity}">Crane</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Trip Sheet No</label>
+                  <input type="text" th:field="*{manualTripSheetNo}" class="form-control form-control-sm" placeholder="4739">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Running Hours</label>
+                  <input type="number" step="0.5" th:field="*{manualRunningHours}" class="form-control form-control-sm" placeholder="0">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Amount</label>
+                  <input type="number" step="0.01" th:field="*{manualAmount}" class="form-control form-control-sm" placeholder="0">
+                </div>
+              </div>
+            </div>
 
             <div class="row">
               <div class="col-4 mb-2">

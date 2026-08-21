@@ -8,6 +8,14 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <style>
     .print-title { display:none; }
+    .gst-section-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .gst-section-head .panel-title { margin:0; }
     @media print {
       body { background:#fff !important; }
       .topbar, .sidebar, .no-print { display:none !important; }
@@ -24,6 +32,11 @@
       thead th { background:#e5e7eb !important; color:#000 !important; }
       a { color:#000 !important; text-decoration:none !important; }
       .panel-title { font-size:14px !important; margin:10px 0 6px !important; }
+      body.gst-bill-print .regular-report-section,
+      body.gst-bill-print .summary-section,
+      body.gst-bill-print .print-title { display:none !important; }
+      body.gst-bill-print .gst-bill-section { display:block !important; }
+      body.gst-bill-print .gst-bill-section .no-print { display:none !important; }
     }
   </style>
 </head>
@@ -45,6 +58,13 @@
           <label class="form-label">Report Month</label>
           <input type="month" name="month" th:value="${month}" class="form-control">
         </div>
+        <div class="col-md-4">
+          <label class="form-label">Crane</label>
+          <select name="craneId" class="form-select">
+            <option value="">All Cranes</option>
+            <option th:each="c : ${cranes}" th:value="${c.id}" th:selected="${selectedCraneId != null and selectedCraneId == c.id}" th:text="${c.craneNo} + ' - ' + ${c.capacity}">Crane</option>
+          </select>
+        </div>
         <div class="col-md-2">
           <button type="submit" class="btn btn-brand-blue w-100">Show</button>
         </div>
@@ -54,7 +74,7 @@
       </form>
     </div>
 
-    <div class="row g-3 mb-3">
+    <div class="row g-3 mb-3 summary-section">
       <div class="col-md-3">
         <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalIncome,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Income</div></div>
       </div>
@@ -69,7 +89,45 @@
       </div>
     </div>
 
-    <div class="row g-3">
+    <div class="card-panel gst-bill-section mb-3">
+      <div class="gst-section-head">
+        <div class="panel-title">GST Bill Details</div>
+        <button type="button" class="btn btn-outline-secondary btn-sm no-print" onclick="printGstBillSection()">Download PDF</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Invoice No</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Crane</th>
+              <th>Taxable</th>
+              <th>CGST</th>
+              <th>SGST</th>
+              <th>Total</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="i : ${gstBillInvoices}">
+              <td th:text="${i.invoiceNo}">INV-2026-00001</td>
+              <td th:text="${i.invoiceDate}">2026-08-21</td>
+              <td th:text="${i.customer.name}">Customer</td>
+              <td th:text="${i.tripSheet != null and i.tripSheet.crane != null ? i.tripSheet.crane.craneNo : (i.manualCraneNo != null and !#strings.isEmpty(i.manualCraneNo) ? i.manualCraneNo : '-')}">Crane</td>
+              <td th:text="'₹' + ${#numbers.formatDecimal(i.taxableAmount,0,'COMMA',2,'POINT')}">₹0</td>
+              <td th:text="'₹' + ${#numbers.formatDecimal(i.cgstAmount,0,'COMMA',2,'POINT')}">₹0</td>
+              <td th:text="'₹' + ${#numbers.formatDecimal(i.sgstAmount,0,'COMMA',2,'POINT')}">₹0</td>
+              <td class="fw-bold" th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
+              <td th:text="'₹' + ${#numbers.formatDecimal(i.balanceAmount,0,'COMMA',2,'POINT')}">₹0</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(gstBillInvoices)}"><td colspan="9" class="text-center text-muted">No GST bills for selected month/crane</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row g-3 regular-report-section">
       <div class="col-md-6">
         <div class="card-panel">
           <div class="panel-title">Date-wise Month Report</div>
@@ -179,5 +237,14 @@
 
   </div>
 </div>
+<script>
+  function printGstBillSection() {
+    document.body.classList.add('gst-bill-print');
+    window.print();
+  }
+  window.addEventListener('afterprint', function () {
+    document.body.classList.remove('gst-bill-print');
+  });
+</script>
 </body>
 </html>

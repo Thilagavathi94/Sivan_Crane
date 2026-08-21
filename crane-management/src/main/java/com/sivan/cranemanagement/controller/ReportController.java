@@ -4,6 +4,7 @@ import com.sivan.cranemanagement.model.Crane;
 import com.sivan.cranemanagement.model.Expense;
 import com.sivan.cranemanagement.model.Invoice;
 import com.sivan.cranemanagement.model.Payment;
+import com.sivan.cranemanagement.model.TripSheet;
 import com.sivan.cranemanagement.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,11 +29,12 @@ public class ReportController {
     private final CraneService craneService;
     private final DriverService driverService;
     private final PaymentService paymentService;
+    private final TripSheetService tripSheetService;
 
     public ReportController(BookingService bookingService, InvoiceService invoiceService,
                              ExpenseService expenseService, CustomerService customerService,
                              CraneService craneService, DriverService driverService,
-                             PaymentService paymentService) {
+                             PaymentService paymentService, TripSheetService tripSheetService) {
         this.bookingService = bookingService;
         this.invoiceService = invoiceService;
         this.expenseService = expenseService;
@@ -40,15 +42,21 @@ public class ReportController {
         this.craneService = craneService;
         this.driverService = driverService;
         this.paymentService = paymentService;
+        this.tripSheetService = tripSheetService;
     }
 
     @GetMapping("/reports")
-    public String reports(@RequestParam(required = false) String month, Model model) {
+    public String reports(@RequestParam(required = false) String month,
+                          @RequestParam(required = false) Long craneId,
+                          Model model) {
         YearMonth selectedMonth = (month != null && !month.isBlank()) ? YearMonth.parse(month) : YearMonth.now();
         LocalDate start = selectedMonth.atDay(1);
         LocalDate end = selectedMonth.atEndOfMonth();
 
         List<Invoice> invoices = invoiceService.findBetween(start, end);
+        List<Invoice> gstBillInvoices = invoices.stream()
+                .filter(invoice -> matchesSelectedCrane(invoice, craneId))
+                .toList();
         List<Payment> payments = paymentService.findBetween(start, end);
         List<Payment> gstPayments = payments.stream()
                 .filter(payment -> payment.getInvoice() != null)
@@ -79,9 +87,11 @@ public class ReportController {
         model.addAttribute("totalCranes", craneService.count());
 
         model.addAttribute("month", selectedMonth.toString());
+        model.addAttribute("selectedCraneId", craneId);
         model.addAttribute("dailySummaries", buildDailySummaries(selectedMonth, payments, expenses));
         model.addAttribute("craneSummaries", buildCraneSummaries(craneService.findAll(), payments, expenses));
         model.addAttribute("invoices", invoices);
+        model.addAttribute("gstBillInvoices", gstBillInvoices);
         model.addAttribute("payments", payments);
         model.addAttribute("gstPayments", gstPayments);
         model.addAttribute("regularPayments", regularPayments);
@@ -97,6 +107,29 @@ public class ReportController {
         model.addAttribute("today", LocalDate.now());
 
         return "reports";
+    }
+
+    private boolean matchesSelectedCrane(Invoice invoice, Long craneId) {
+        if (craneId == null) {
+            return true;
+        }
+        Crane selectedCrane = craneService.findById(craneId);
+        if (invoice.getManualCraneNo() != null && selectedCrane.getCraneNo().equals(invoice.getManualCraneNo())) {
+            return true;
+        }
+        if (invoice.getTripSheet() != null && invoice.getTripSheet().getCrane() != null
+                && craneId.equals(invoice.getTripSheet().getCrane().getId())) {
+            return true;
+        }
+        if (invoice.getBooking() == null) {
+            return false;
+        }
+        for (TripSheet tripSheet : tripSheetService.findByBookingId(invoice.getBooking().getId())) {
+            if (tripSheet.getCrane() != null && craneId.equals(tripSheet.getCrane().getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<DailySummary> buildDailySummaries(YearMonth selectedMonth, List<Payment> payments, List<Expense> expenses) {
