@@ -16,7 +16,7 @@
   <div class="flex-grow-1 p-4">
 
     <div class="row g-3">
-      <div class="col-md-6">
+      <div class="col-lg-9">
         <div class="card-panel">
           <div class="panel-title">📝 <span th:text="${quotation.id != null ? 'Edit Quotation' : 'New Quotation'}">New Quotation</span></div>
           <form th:action="@{/quotations/save}" th:object="${quotation}" method="post">
@@ -54,7 +54,7 @@
             </div>
 
             <label class="form-label mt-2 fw-bold">Items (per crane)</label>
-            <div class="table-responsive">
+            <div class="table-responsive quotation-items-wrap">
             <table class="table table-sm align-middle items-table" id="itemsTable" th:attr="data-row-count=${quotation.items.size()}">
               <thead>
                 <tr>
@@ -150,28 +150,58 @@
         </div>
       </div>
 
-      <div class="col-md-6">
+      <div class="col-lg-3">
         <div class="card-panel">
           <div class="panel-title">All Quotations</div>
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead><tr><th>Quo No</th><th>Customer</th><th>Date</th><th>Basis</th><th>Action</th></tr></thead>
-              <tbody>
-                <tr th:each="q : ${quotations}">
-                  <td th:text="${q.quotationNo}">QUO-00001</td>
-                  <td th:text="${q.customer.name}">Customer</td>
-                  <td th:text="${q.quotationDate}">2026-07-21</td>
-                  <td th:text="${q.billingBasis}">Daily</td>
-                  <td>
-                    <a th:href="@{'/quotations/edit/' + ${q.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <a th:href="@{'/quotations/print/' + ${q.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">🖨️ PDF</a>
-                    <a th:href="@{'/quotations/convert-to-booking/' + ${q.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Create a new Booking from this quotation?')">Booking</a>
-                  </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(quotations)}"><td colspan="5" class="text-center text-muted">No quotations yet</td></tr>
-              </tbody>
-            </table>
+          <div class="quotation-list">
+            <div class="quotation-list-head">
+              <span>Quotation No</span>
+              <span>Customer Name</span>
+              <span>Open</span>
+            </div>
+            <div th:each="q : ${quotations}" class="quotation-list-item">
+              <div class="quotation-list-summary">
+                <span th:text="${q.quotationNo}">QUO-00001</span>
+                <span th:text="${q.customer.name}">Customer</span>
+                <button type="button" class="btn btn-sm btn-outline-primary quotation-open-btn" th:attr="data-target='quote-details-' + ${q.id},aria-controls='quote-details-' + ${q.id}">Open</button>
+              </div>
+              <div th:id="${'quote-details-' + q.id}" class="quotation-list-detail quotation-details-card d-none">
+                <div><span>Quotation Number</span><strong th:text="${q.quotationNo}">QUO-00001</strong></div>
+                <div><span>Customer Name</span><strong th:text="${q.customer.name}">Customer</strong></div>
+                <div><span>Date</span><strong th:text="${q.quotationDate}">2026-07-21</strong></div>
+                <div><span>Basis</span><strong th:text="${q.billingBasis}">Daily</strong></div>
+                <div class="quotation-actions">
+                  <a th:href="@{'/quotations/edit/' + ${q.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <a th:href="@{'/quotations/print/' + ${q.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">PDF</a>
+                  <a th:href="@{'/quotations/convert-to-booking/' + ${q.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Create a new Booking from this quotation?')">Booking</a>
+                </div>
+              </div>
+            </div>
+            <div th:if="${#lists.isEmpty(quotations)}" class="text-center text-muted py-3">No quotations yet</div>
           </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              document.querySelectorAll('.quotation-open-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                  var details = document.getElementById(button.getAttribute('data-target'));
+                  if (!details) return;
+                  var isOpen = !details.classList.contains('d-none');
+
+                  document.querySelectorAll('.quotation-list-detail').forEach(function (row) {
+                    row.classList.add('d-none');
+                  });
+                  document.querySelectorAll('.quotation-open-btn').forEach(function (btn) {
+                    btn.textContent = 'Open';
+                  });
+
+                  if (!isOpen) {
+                    details.classList.remove('d-none');
+                    button.textContent = 'Close';
+                  }
+                });
+              });
+            });
+          </script>
         </div>
       </div>
     </div>
