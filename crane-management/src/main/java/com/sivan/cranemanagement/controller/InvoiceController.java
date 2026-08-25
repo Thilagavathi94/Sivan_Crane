@@ -3,13 +3,20 @@ package com.sivan.cranemanagement.controller;
 import com.sivan.cranemanagement.model.Invoice;
 import com.sivan.cranemanagement.model.InvoiceItem;
 import com.sivan.cranemanagement.service.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/invoices")
@@ -20,14 +27,16 @@ public class InvoiceController {
     private final CustomerService customerService;
     private final TripSheetService tripSheetService;
     private final CraneService craneService;
+    private final PdfService pdfService;
 
     public InvoiceController(InvoiceService invoiceService, BookingService bookingService, CustomerService customerService,
-                              TripSheetService tripSheetService, CraneService craneService) {
+                              TripSheetService tripSheetService, CraneService craneService, PdfService pdfService) {
         this.invoiceService = invoiceService;
         this.bookingService = bookingService;
         this.customerService = customerService;
         this.tripSheetService = tripSheetService;
         this.craneService = craneService;
+        this.pdfService = pdfService;
     }
 
     @GetMapping
@@ -136,5 +145,23 @@ public class InvoiceController {
     public String print(@PathVariable Long id, Model model) {
         model.addAttribute("invoice", invoiceService.findById(id));
         return "invoice-print";
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> download(@PathVariable Long id, HttpServletRequest request) {
+        Invoice invoice = invoiceService.findById(id);
+        byte[] pdf = pdfService.renderPdf("invoice-print", Map.of("invoice", invoice), baseUrl(request));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(invoice.getInvoiceNo() + ".pdf", StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .body(pdf);
+    }
+
+    private String baseUrl(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
     }
 }

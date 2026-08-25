@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title th:text="'Quotation ' + ${quotation.quotationNo}">Quotation</title>
   <style>
     :root {
@@ -60,6 +60,7 @@
       display: inline-block;
     }
     .btn-print { background: var(--orange); color: var(--navy); }
+    .btn-download { background: var(--navy); color: #fff; }
     .btn-back { background: #fff; color: var(--navy); border: 1px solid var(--border) !important; }
 
     .head {
@@ -198,17 +199,18 @@
 </head>
 <body>
 
-  <div class="toolbar">
-    <a th:href="@{/quotations}" class="btn-back">&larr; Back</a>
+  <div class="toolbar" th:if="${pdfDownload != true}">
+    <a href="/quotations" class="btn-back">&larr; Back</a>
     <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <a th:href="'/quotations/download/' + ${quotation.id}" class="btn-download">⬇ Download PDF</a>
   </div>
 
   <div class="sheet">
     <div class="head">
-      <img class="crane-deco left" th:src="@{/images/header-mobile-crane-hd.png}" alt="">
-      <img class="crane-deco right" th:src="@{/images/header-mobile-crane-hd.png}" alt="">
+      <img class="crane-deco left" src="/images/header-mobile-crane-hd.png" alt="" />
+      <img class="crane-deco right" src="/images/header-mobile-crane-hd.png" alt="" />
       <div class="head-inner">
-        <img class="god-mark" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service">
+        <img class="god-mark" src="/images/shiva-logo.png" alt="Sivan Crane Service" />
         <h1>SIVAN CRANE SERVICES</h1>
         <p class="addr">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</p>
         <p class="gst">GSTIN : 33GTWPS5321H1Z5</p>
@@ -342,6 +344,12 @@
       </div>
     </div>
   </div>
+
+  <script th:if="${autoPrint == true}">
+    window.addEventListener("load", function () {
+      window.print();
+    });
+  </script>
 
 </body>
 </html>

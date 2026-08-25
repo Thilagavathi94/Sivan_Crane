@@ -5,14 +5,22 @@ import com.sivan.cranemanagement.model.Quotation;
 import com.sivan.cranemanagement.model.QuotationItem;
 import com.sivan.cranemanagement.service.BookingService;
 import com.sivan.cranemanagement.service.CustomerService;
+import com.sivan.cranemanagement.service.PdfService;
 import com.sivan.cranemanagement.service.QuotationService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/quotations")
@@ -21,12 +29,14 @@ public class QuotationController {
     private final QuotationService quotationService;
     private final CustomerService customerService;
     private final BookingService bookingService;
+    private final PdfService pdfService;
 
     public QuotationController(QuotationService quotationService, CustomerService customerService,
-                                BookingService bookingService) {
+                                BookingService bookingService, PdfService pdfService) {
         this.quotationService = quotationService;
         this.customerService = customerService;
         this.bookingService = bookingService;
+        this.pdfService = pdfService;
     }
 
     @GetMapping
@@ -79,6 +89,24 @@ public class QuotationController {
     public String print(@PathVariable Long id, Model model) {
         model.addAttribute("quotation", quotationService.findById(id));
         return "quotation-print";
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> download(@PathVariable Long id, HttpServletRequest request) {
+        Quotation quotation = quotationService.findById(id);
+        byte[] pdf = pdfService.renderPdf("quotation-print", Map.of("quotation", quotation), baseUrl(request));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(quotation.getQuotationNo() + ".pdf", StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .body(pdf);
+    }
+
+    private String baseUrl(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
     }
 
     // "Customer Accepts" -> converts the quotation into a Booking automatically

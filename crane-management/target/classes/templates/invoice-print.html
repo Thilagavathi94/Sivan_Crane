@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title th:text="'Invoice ' + ${invoice.invoiceNo}">Invoice</title>
   <style>
     * { box-sizing: border-box; }
@@ -54,6 +54,12 @@
       color: #fff;
       border-color: transparent;
       box-shadow: 0 4px 10px rgba(29,78,216,.25);
+    }
+    .toolbar .download-link {
+      background: var(--brand-dark);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(15,23,42,.18);
     }
 
     .sheet {
@@ -370,23 +376,24 @@
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <a th:href="@{/invoices}">&larr; Back</a>
+  <div class="toolbar" th:if="${pdfDownload != true}">
+    <a href="/invoices">&larr; Back</a>
     <button onclick="window.print()">🖨 Print / Save PDF</button>
+    <a th:href="'/invoices/download/' + ${invoice.id}" class="download-link">⬇ Download PDF</a>
   </div>
 
   <div class="sheet">
-    <img class="watermark" th:src="@{/images/invoice-crane-background.png}" alt="">
+    <img class="watermark" src="/images/invoice-crane-background.png" alt="" />
     <div class="head">
-      <img class="header-crane left" th:src="@{/images/header-mobile-crane-hd.png}" alt="">
+      <img class="header-crane left" src="/images/header-mobile-crane-hd.png" alt="" />
       <div class="head-main">
-        <img class="god-mark" th:src="@{/images/shiva-logo.png}" alt="Sivan Crane Service">
+        <img class="god-mark" src="/images/shiva-logo.png" alt="Sivan Crane Service" />
         <h1>SIVAN CRANE SERVICES</h1>
         <div class="sub">103/1, Ranganayagi Nagar Extn., Near Renukadevi Temple, Thekkupalayam (P.O), Coimbatore - 641 020.</div>
         <div class="gst">GSTIN : 33GTWPS5321H1Z5</div>
         <div class="phone">Cell : 98422 23358 / 88384 27277</div>
       </div>
-      <img class="header-crane right" th:src="@{/images/header-mobile-crane-hd.png}" alt="">
+      <img class="header-crane right" src="/images/header-mobile-crane-hd.png" alt="" />
     </div>
 
     <div class="bill-row">
@@ -504,6 +511,11 @@
       var total = document.getElementById("grandTotalValue");
       var words = document.getElementById("amountWords");
       if (total && words) words.textContent = numberToWordsIndian(parseFloat(total.getAttribute("data-amount")) || 0);
+    });
+  </script>
+  <script th:if="${autoPrint == true}">
+    window.addEventListener("load", function () {
+      window.print();
     });
   </script>
 </body>

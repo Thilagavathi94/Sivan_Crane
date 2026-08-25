@@ -23,6 +23,7 @@ com\sivan\cranemanagement\controller\TripSheetController.class
 com\sivan\cranemanagement\service\CraneService.class
 com\sivan\cranemanagement\controller\QuotationController.class
 com\sivan\cranemanagement\repository\CraneRepository.class
+com\sivan\cranemanagement\service\PdfService.class
 com\sivan\cranemanagement\CraneManagementApplication.class
 com\sivan\cranemanagement\service\InvoiceService.class
 com\sivan\cranemanagement\controller\AuthController.class
