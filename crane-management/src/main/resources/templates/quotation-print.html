@@ -111,14 +111,15 @@
       text-align: center;
     }
     .head .god-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid var(--orange);
+      width: 118px;
+      height: 52px;
+      
+      border: 1px solid var(--border);
       background: #fff;
-      object-fit: cover;
+      object-fit: contain;
       object-position: center;
       margin-bottom: 4px;
+      padding: 2px;
     }
     .head h1 {
       margin: 0;
@@ -233,67 +234,16 @@
       <div class="block" style="text-align:right;">
         <h4>Details</h4>
         <p><b>Date:</b> <span th:text="${quotation.quotationDate}">2026-07-23</span></p>
-        <p><b>Basis:</b> <span th:text="${quotation.billingBasis}">Daily</span></p>
-        <p><b>Shift:</b> <span th:text="${quotation.shift != null and !#strings.isEmpty(quotation.shift) ? quotation.shift : 'Day'}">Day</span></p>
+        <p><b>Basis:</b> <span th:text="${quotation.basisSummary}">Daily</span></p>
+        <p><b>Shift:</b> <span th:text="${quotation.shiftSummary}">Day</span></p>
       </div>
     </div>
 
-    <!-- Hourly Basis -->
-    <table th:if="${quotation.billingBasis == 'Hourly'}">
-      <thead>
-        <tr>
-          <th>Crane Capacity</th>
-          <th class="num">Minimum Hour</th>
-          <th class="num">Amount</th>
-          <th class="num">Additional Hour</th>
-          <th class="num">Additional Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="item : ${quotation.items}">
-          <td th:text="${item.description}">17 Ton Crane</td>
-          <td class="num" th:text="${item.hoursOrUnits != null and item.hoursOrUnits.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.hoursOrUnits : '-'}">1</td>
-          <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
-          <td class="num" th:text="${item.additionalHours != null and item.additionalHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.additionalHours : '-'}">1</td>
-          <td class="num">
-            <span th:if="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
-                  th:text="'₹' + ${#numbers.formatDecimal(item.additionalAmount,0,'COMMA',2,'POINT')}">₹0.00</span>
-            <span th:unless="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Daily Basis -->
-    <table th:if="${quotation.billingBasis == 'Daily'}">
-      <thead>
-        <tr>
-          <th>Crane Capacity</th>
-          <th class="num">Days</th>
-          <th class="num">Hrs</th>
-          <th class="num">Amount</th>
-          <th class="num">Additional Hour</th>
-          <th class="num">Additional Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="item : ${quotation.items}">
-          <td th:text="${item.description}">17 Ton Crane</td>
-          <td class="num" th:text="${item.periodDays != null and item.periodDays.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.periodDays : '-'}">1</td>
-          <td class="num" th:text="${item.hoursOrUnits != null and item.hoursOrUnits.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.hoursOrUnits : '-'}">8</td>
-          <td class="num" th:text="'₹' + ${#numbers.formatDecimal(item.amount,0,'COMMA',2,'POINT')}">₹0.00</td>
-          <td class="num" th:text="${item.additionalHours != null and item.additionalHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? item.additionalHours : '-'}">1</td>
-          <td class="num">
-            <span th:if="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}"
-                  th:text="'₹' + ${#numbers.formatDecimal(item.additionalAmount,0,'COMMA',2,'POINT')}">₹0.00</span>
-            <span th:unless="${item.additionalAmount != null and item.additionalAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">-</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Monthly Basis -->
-    <table th:if="${quotation.billingBasis == 'Monthly'}">
+    <!-- Single unified table: shows Month / Day / Working Hour columns for every
+         row so a quotation mixing Hourly, Daily and Monthly crane lines renders
+         correctly in one table (each row shows '-' for columns it doesn't use)
+         instead of forcing everything into whichever basis was picked last. -->
+    <table>
       <thead>
         <tr>
           <th>Crane Capacity</th>

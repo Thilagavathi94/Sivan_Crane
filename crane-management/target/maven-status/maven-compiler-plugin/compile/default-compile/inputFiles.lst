@@ -13,8 +13,10 @@ D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\controller\PaymentController.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\controller\QuotationController.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\controller\ReportController.java
+D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\controller\SettingsController.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\controller\TripSheetController.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\CraneManagementApplication.java
+D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\AppSettings.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\Booking.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\Crane.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\Customer.java
@@ -27,6 +29,7 @@ D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\QuotationItem.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\TripSheet.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\model\User.java
+D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\AppSettingsRepository.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\BookingRepository.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\CraneRepository.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\CustomerRepository.java
@@ -37,6 +40,8 @@ D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\QuotationRepository.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\TripSheetRepository.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\repository\UserRepository.java
+D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\service\AppSettingsService.java
+D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\service\BackupService.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\service\BookingService.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\service\CraneService.java
 D:\HC Tech Projects\sivan-crane-management-system\crane-management\src\main\java\com\sivan\cranemanagement\service\CustomerService.java

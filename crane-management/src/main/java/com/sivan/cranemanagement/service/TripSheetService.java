@@ -1,11 +1,16 @@
 package com.sivan.cranemanagement.service;
 
 import com.sivan.cranemanagement.model.Booking;
+import com.sivan.cranemanagement.model.Invoice;
+import com.sivan.cranemanagement.model.Payment;
 import com.sivan.cranemanagement.model.TripSheet;
 import com.sivan.cranemanagement.repository.BookingRepository;
+import com.sivan.cranemanagement.repository.InvoiceRepository;
+import com.sivan.cranemanagement.repository.PaymentRepository;
 import com.sivan.cranemanagement.repository.TripSheetRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,12 +20,18 @@ public class TripSheetService {
     private final TripSheetRepository tripSheetRepository;
     private final BookingRepository bookingRepository;
     private final NumberGeneratorService numberGeneratorService;
+    private final InvoiceRepository invoiceRepository;
+    private final PaymentRepository paymentRepository;
 
     public TripSheetService(TripSheetRepository tripSheetRepository, BookingRepository bookingRepository,
-                             NumberGeneratorService numberGeneratorService) {
+                             NumberGeneratorService numberGeneratorService,
+                             InvoiceRepository invoiceRepository,
+                             PaymentRepository paymentRepository) {
         this.tripSheetRepository = tripSheetRepository;
         this.bookingRepository = bookingRepository;
         this.numberGeneratorService = numberGeneratorService;
+        this.invoiceRepository = invoiceRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public List<TripSheet> findAll() {
@@ -66,6 +77,7 @@ public class TripSheetService {
     }
 
     public TripSheet save(TripSheet tripSheet) {
+        validateAndSynchronizeRunningTime(tripSheet);
         // Trip Sheet No is entered by the user. Only auto-generate as a fallback
         // if it was left blank, and only for brand-new trip sheets.
         if (tripSheet.getId() == null &&
@@ -93,7 +105,33 @@ public class TripSheetService {
         return saved;
     }
 
+    private void validateAndSynchronizeRunningTime(TripSheet tripSheet) {
+        Integer hours = tripSheet.getRunningHours();
+        Integer minutes = tripSheet.getRunningMinutes();
+        if (hours == null || hours < 0 || minutes == null || minutes < 0 || minutes > 59) {
+            throw new IllegalArgumentException("Running time must use whole hours and minutes from 0 to 59.");
+        }
+        if (hours == 0 && minutes == 0) {
+            throw new IllegalArgumentException("Running time must be greater than zero.");
+        }
+        if (tripSheet.getAmount() == null || tripSheet.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount cannot be negative.");
+        }
+        tripSheet.synchronizeRunningTime();
+    }
+
     public void delete(Long id) {
+        // Invoices/payments referencing this trip sheet would otherwise block
+        // deletion with a foreign key error - unlink them (records stay, just
+        // drop the trip sheet reference) before removing the trip sheet itself.
+        for (Invoice invoice : invoiceRepository.findByTripSheetIdOrderByIdDesc(id)) {
+            invoice.setTripSheet(null);
+            invoiceRepository.save(invoice);
+        }
+        for (Payment payment : paymentRepository.findByTripSheetId(id)) {
+            payment.setTripSheet(null);
+            paymentRepository.save(payment);
+        }
         tripSheetRepository.deleteById(id);
     }
 

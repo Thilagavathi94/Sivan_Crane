@@ -16,8 +16,12 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String invoiceNo; // INV-2026-00001
+    @Column(nullable = false)
+    private String invoiceNo; // INV-001
+
+    private String financialYear;
+
+    private String invoiceStatus = "Draft"; // Draft / Final
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
@@ -43,6 +47,10 @@ public class Invoice {
 
     private BigDecimal manualRunningHours = BigDecimal.ZERO;
 
+    private Integer manualRunningHoursWhole;
+
+    private Integer manualRunningMinutes;
+
     private BigDecimal manualAmount = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -64,4 +72,37 @@ public class Invoice {
     private BigDecimal receivedAmount = BigDecimal.ZERO;
 
     private BigDecimal balanceAmount = BigDecimal.ZERO;
+
+    public Integer getManualRunningHoursWhole() {
+        return manualRunningHoursWhole != null ? manualRunningHoursWhole : legacyManualDuration()[0];
+    }
+
+    public Integer getManualRunningMinutes() {
+        return manualRunningMinutes != null ? manualRunningMinutes : legacyManualDuration()[1];
+    }
+
+    public void setManualRunningHoursWhole(Integer manualRunningHoursWhole) {
+        this.manualRunningHoursWhole = manualRunningHoursWhole;
+    }
+
+    public void setManualRunningMinutes(Integer manualRunningMinutes) {
+        this.manualRunningMinutes = manualRunningMinutes;
+    }
+
+    public void synchronizeManualRunningTime() {
+        int hours = manualRunningHoursWhole == null ? 0 : manualRunningHoursWhole;
+        int minutes = manualRunningMinutes == null ? 0 : manualRunningMinutes;
+        this.manualRunningHoursWhole = hours;
+        this.manualRunningMinutes = minutes;
+        this.manualRunningHours = BigDecimal.valueOf(hours)
+                .add(BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, java.math.RoundingMode.HALF_UP));
+    }
+
+    private int[] legacyManualDuration() {
+        BigDecimal value = manualRunningHours == null ? BigDecimal.ZERO : manualRunningHours;
+        int hours = value.intValue();
+        int minutes = value.subtract(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(60))
+                .setScale(0, java.math.RoundingMode.HALF_UP).intValue();
+        return minutes == 60 ? new int[]{hours + 1, 0} : new int[]{hours, minutes};
+    }
 }

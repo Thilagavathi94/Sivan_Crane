@@ -39,4 +39,8 @@ public class QuotationItem {
     private BigDecimal periodDays = BigDecimal.ZERO;
 
     private BigDecimal amount = BigDecimal.ZERO;
+
+    // Day / Night for this specific row. Left blank to fall back to the
+    // quotation-level shift (kept for quotations where every row is the same).
+    private String shift;
 }

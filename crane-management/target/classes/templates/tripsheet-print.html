@@ -70,12 +70,12 @@
     }
     .brand { display: flex; gap: 14px; padding: 20px 20px 20px 22px; align-items: center; }
     .logo {
-      width: 54px; height: 54px; border-radius: 50%;
-      background: rgba(255,255,255,.18);
+      width: 118px; height: 54px; border-radius: 8px;
+      background: #fff;
       border: 2px solid rgba(255,255,255,.55);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      padding: 4px;
+      padding: 2px;
       object-fit: contain;
     }
     .sheet { position: relative; }
@@ -219,7 +219,7 @@
     <img class="watermark" th:src="@{/images/crane-watermark.svg}" alt="">
     <div class="top">
       <div class="brand">
-        <img class="logo" th:src="@{/images/sivan-logo.svg}" alt="Sivan Crane Service">
+        <img class="logo" th:src="@{/images/header-mobile-crane-hd.png}" alt="Sivan Crane Service">
         <div>
           <h1>SIVAN CRANE SERVICE</h1>
           <div class="sub">Manual Handling, Loading &amp; Unloading, Safety Work, Hourly, Daily &amp; Monthly Works</div>
@@ -246,7 +246,8 @@
       <div class="box">
         <div class="box-title">Work Details</div>
         <div class="work-lines">
-          <div>Total Running Hours</div><div th:text="${tripSheet.totalHours}">0</div>
+          <div>Running Hours</div><div th:text="${tripSheet.runningHours}">0</div>
+          <div>Running Minutes</div><div th:text="${tripSheet.runningMinutes}">0</div>
         </div>
       </div>
 

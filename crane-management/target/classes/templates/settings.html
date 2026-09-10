@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Sivan Crane Service</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments :: topbar}"></div>
+<div class="d-flex">
+  <div class="sidebar-col">
+    <div th:replace="~{fragments :: sidebar('settings')}"></div>
+  </div>
+  <div class="flex-grow-1 p-4">
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}">Saved</div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}">Error</div>
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="card-panel">
+          <div class="panel-title">Company Details</div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-control" value="Sivan Crane Service" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Software</label>
+              <input type="text" class="form-control" value="Crane Management & GST Billing" readonly>
+            </div>
+          </div>
+        </div>
+
+        <form th:action="@{/settings/save-numbering}" th:object="${settings}" method="post" class="card-panel">
+          <input type="hidden" th:field="*{id}">
+          <div class="panel-title">Invoice Settings</div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Current Financial Year</label>
+              <input type="text" th:field="*{currentFinancialYear}" class="form-control" placeholder="2026-27">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Next Invoice Number</label>
+              <input type="number" min="1" th:field="*{nextInvoiceNumber}" class="form-control" placeholder="026">
+            </div>
+          </div>
+
+          <div class="panel-title mt-4">Quotation Settings</div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Next Quotation Number</label>
+              <input type="number" min="1" th:field="*{nextQuotationNumber}" class="form-control" placeholder="015">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-brand-green mt-3">Save</button>
+        </form>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card-panel">
+          <div class="panel-title">Backup &amp; Restore</div>
+          <p class="text-muted mb-2" style="font-size:13px;">Daily automatic backup runs at 9:00 PM.</p>
+          <div class="mb-3">
+            <label class="form-label">Backup Folder</label>
+            <input type="text" class="form-control" th:value="${backupDir}" readonly>
+          </div>
+          <form th:action="@{/settings/backup-now}" method="post">
+            <button type="submit" class="btn btn-brand-blue">Backup Now</button>
+          </form>
+          <hr>
+          <label class="form-label">Restore</label>
+          <div class="alert alert-warning py-2" style="font-size:13px;">
+            Restore is intentionally not exposed as a normal web button yet because it replaces live data. Use the saved backup folder if a technician needs to restore the database.
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="panel-title">Change Password</div>
+          <p class="text-muted mb-0" style="font-size:13px;">Password change can be connected here when login enforcement is enabled.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

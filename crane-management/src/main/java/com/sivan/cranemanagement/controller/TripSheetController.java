@@ -53,7 +53,14 @@ public class TripSheetController {
             model.addAttribute("error", "GST trip sheet needs the selected customer's GST number before saving.");
             return "tripsheets";
         }
-        tripSheetService.save(tripSheet);
+        try {
+            tripSheetService.save(tripSheet);
+        } catch (IllegalArgumentException e) {
+            populateFormLists(model);
+            model.addAttribute("tripSheet", tripSheet);
+            model.addAttribute("error", e.getMessage());
+            return "tripsheets";
+        }
         return "redirect:/tripsheets";
     }
 

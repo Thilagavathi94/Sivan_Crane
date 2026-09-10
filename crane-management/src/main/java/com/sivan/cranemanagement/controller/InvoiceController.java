@@ -2,6 +2,7 @@ package com.sivan.cranemanagement.controller;
 
 import com.sivan.cranemanagement.model.Invoice;
 import com.sivan.cranemanagement.model.InvoiceItem;
+import com.sivan.cranemanagement.model.TripSheet;
 import com.sivan.cranemanagement.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ContentDisposition;
@@ -62,18 +63,25 @@ public class InvoiceController {
         return invoice;
     }
 
-    // "Generate Invoice from Trip Sheet" - pre-fills customer + a crane-hours line item
+    // "Generate Invoice from Trip Sheet" - pre-fills customer + a crane-hours line item.
+    // If this trip sheet is linked to a booking, build the invoice from the whole
+    // booking instead, so every trip sheet under that booking is included rather
+    // than just the one that was clicked.
     @GetMapping("/from-tripsheet/{tripSheetId}")
     public String fromTripSheet(@PathVariable Long tripSheetId,
                                  @RequestParam(defaultValue = "2000") BigDecimal ratePerHour,
                                  @RequestParam(defaultValue = "1500") BigDecimal mobilizationCharge,
                                  Model model) {
+        TripSheet tripSheet = tripSheetService.findById(tripSheetId);
         model.addAttribute("invoices", invoiceService.findAll());
         model.addAttribute("bookings", bookingService.findAll());
         model.addAttribute("customers", customerService.findAll());
         model.addAttribute("tripSheets", tripSheetService.findAll());
         model.addAttribute("cranes", craneService.findAll());
-        model.addAttribute("invoice", padItems(invoiceService.buildFromTripSheet(tripSheetId, ratePerHour, mobilizationCharge)));
+        Invoice invoice = tripSheet.getBooking() != null
+                ? invoiceService.buildFromBooking(tripSheet.getBooking().getId())
+                : invoiceService.buildFromTripSheet(tripSheetId, ratePerHour, mobilizationCharge);
+        model.addAttribute("invoice", padItems(invoice));
         return "invoices";
     }
 
@@ -89,7 +97,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Invoice invoice) {
+    public String save(@ModelAttribute Invoice invoice, Model model) {
         List<InvoiceItem> cleaned = new ArrayList<>();
         for (int i = 0; i < invoice.getItems().size(); i++) {
             InvoiceItem item = invoice.getItems().get(i);
@@ -107,7 +115,18 @@ public class InvoiceController {
             }
         }
         invoice.setItems(cleaned);
-        invoiceService.save(invoice);
+        try {
+            invoiceService.save(invoice);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("invoices", invoiceService.findAll());
+            model.addAttribute("bookings", bookingService.findAll());
+            model.addAttribute("customers", customerService.findAll());
+            model.addAttribute("tripSheets", tripSheetService.findAll());
+            model.addAttribute("cranes", craneService.findAll());
+            model.addAttribute("invoice", padItems(invoice));
+            model.addAttribute("error", e.getMessage());
+            return "invoices";
+        }
         return "redirect:/invoices";
     }
 
@@ -135,6 +154,12 @@ public class InvoiceController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         invoiceService.delete(id);
+        return "redirect:/invoices";
+    }
+
+    @GetMapping("/finalize/{id}")
+    public String finalizeInvoice(@PathVariable Long id) {
+        invoiceService.finalizeInvoice(id);
         return "redirect:/invoices";
     }
 

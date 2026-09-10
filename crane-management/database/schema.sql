@@ -102,6 +102,8 @@ CREATE TABLE IF NOT EXISTS trip_sheets (
   crane_id BIGINT NOT NULL,
   trip_date DATE,
   total_hours DECIMAL(10,2) DEFAULT 0,
+  running_hours INT,
+  running_minutes INT,
   amount DECIMAL(12,2) DEFAULT 0,
   billing_type VARCHAR(50) DEFAULT 'Regular',
   converted_to_invoice BOOLEAN DEFAULT FALSE,
@@ -116,7 +118,8 @@ CREATE TABLE IF NOT EXISTS trip_sheets (
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quotations (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  quotation_no VARCHAR(50) NOT NULL UNIQUE,
+  quotation_no VARCHAR(50) NOT NULL,
+  financial_year VARCHAR(20),
   customer_id BIGINT NOT NULL,
   quotation_date DATE,
   subtotal DECIMAL(12,2) DEFAULT 0,
@@ -145,7 +148,9 @@ CREATE TABLE IF NOT EXISTS quotation_items (
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS invoices (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  invoice_no VARCHAR(50) NOT NULL UNIQUE,
+  invoice_no VARCHAR(50) NOT NULL,
+  financial_year VARCHAR(20),
+  invoice_status VARCHAR(50) DEFAULT 'Draft',
   customer_id BIGINT NOT NULL,
   trip_sheet_id BIGINT,
   booking_id BIGINT,
@@ -154,6 +159,8 @@ CREATE TABLE IF NOT EXISTS invoices (
   manual_crane_no VARCHAR(100),
   manual_trip_sheet_no VARCHAR(100),
   manual_running_hours DECIMAL(10,2) DEFAULT 0,
+  manual_running_hours_whole INT,
+  manual_running_minutes INT,
   manual_amount DECIMAL(12,2) DEFAULT 0,
   taxable_amount DECIMAL(12,2) DEFAULT 0,
   cgst_percent DECIMAL(5,2) DEFAULT 9,
@@ -207,6 +214,20 @@ CREATE TABLE IF NOT EXISTS expenses (
   description VARCHAR(500),
   CONSTRAINT fk_expense_crane FOREIGN KEY (crane_id) REFERENCES cranes(id)
 );
+
+-- ---------------------------------------------------------------------------
+-- Application Settings
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS app_settings (
+  id BIGINT PRIMARY KEY,
+  current_financial_year VARCHAR(20),
+  next_invoice_number INT DEFAULT 1,
+  next_quotation_number INT DEFAULT 1
+);
+
+INSERT INTO app_settings (id, current_financial_year, next_invoice_number, next_quotation_number)
+SELECT 1, '2026-27', 1, 1
+WHERE NOT EXISTS (SELECT 1 FROM app_settings WHERE id = 1);
 
 -- ---------------------------------------------------------------------------
 -- Seed data (matches DataInitializer.java so both approaches stay in sync)

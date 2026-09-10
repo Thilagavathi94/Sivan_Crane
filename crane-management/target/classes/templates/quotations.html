@@ -65,6 +65,7 @@
                   <th>Amount</th>
                   <th id="thAddHours">Additional Hour</th>
                   <th>Additional Amount</th>
+                  <th style="width:110px;">Shift</th>
                 </tr>
               </thead>
               <tbody id="itemsTableBody">
@@ -76,12 +77,19 @@
                   <td class="col-amount"><input type="number" step="0.01" th:field="*{items[__${iter.index}__].amount}" class="form-control form-control-sm" placeholder="0"></td>
                   <td class="col-addhours"><input type="number" step="0.5" th:field="*{items[__${iter.index}__].additionalHours}" class="form-control form-control-sm" placeholder="1"></td>
                   <td class="col-addamount"><input type="number" step="0.01" th:field="*{items[__${iter.index}__].additionalAmount}" class="form-control form-control-sm" placeholder="0"></td>
+                  <td>
+                    <select th:field="*{items[__${iter.index}__].shift}" class="form-select form-select-sm">
+                      <option value="">Same as above</option>
+                      <option value="Day">Day</option>
+                      <option value="Night">Night</option>
+                    </select>
+                  </td>
                 </tr>
               </tbody>
             </table>
             </div>
             <button type="button" class="btn btn-sm btn-outline-secondary mb-2" id="addRowBtn" onclick="addItemRow()">+ Add Row</button>
-            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Enter the amounts directly. Columns shown change automatically based on the Billing Basis selected above.</p>
+            <p class="text-muted" style="font-size:12px; margin-top:-6px;">Enter the amounts directly. Columns shown change automatically based on the Billing Basis selected above. Use the Shift column on a row only if that crane's shift is different from the Day/Night picked above.</p>
             <script>
               // Which columns are visible for each billing basis.
               // "period" = text period label (used as "Month" on Monthly basis)
@@ -126,7 +134,8 @@
                   '<td class="col-hours"><input type="number" step="0.5" name="items[' + idx + '].hoursOrUnits" class="form-control form-control-sm" placeholder="1"></td>' +
                   '<td class="col-amount"><input type="number" step="0.01" name="items[' + idx + '].amount" class="form-control form-control-sm" placeholder="0"></td>' +
                   '<td class="col-addhours"><input type="number" step="0.5" name="items[' + idx + '].additionalHours" class="form-control form-control-sm" placeholder="1"></td>' +
-                  '<td class="col-addamount"><input type="number" step="0.01" name="items[' + idx + '].additionalAmount" class="form-control form-control-sm" placeholder="0"></td>';
+                  '<td class="col-addamount"><input type="number" step="0.01" name="items[' + idx + '].additionalAmount" class="form-control form-control-sm" placeholder="0"></td>' +
+                  '<td><select name="items[' + idx + '].shift" class="form-select form-select-sm"><option value="">Same as above</option><option value="Day">Day</option><option value="Night">Night</option></select></td>';
                 tbody.appendChild(tr);
                 table.setAttribute('data-row-count', idx + 1);
                 applyBasisColumns();
@@ -174,6 +183,7 @@
                   <a th:href="@{'/quotations/edit/' + ${q.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
                   <a th:href="@{'/quotations/print/' + ${q.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">PDF</a>
                   <a th:href="@{'/quotations/convert-to-booking/' + ${q.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Create a new Booking from this quotation?')">Booking</a>
+                  <a th:href="@{'/quotations/delete/' + ${q.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this quotation?')">Delete</a>
                 </div>
               </div>
             </div>

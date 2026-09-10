@@ -54,11 +54,17 @@
 
     <div class="card-panel mb-3 no-print">
       <form th:action="@{/reports}" method="get" class="row g-2 align-items-end">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label">Report Month</label>
           <input type="month" name="month" th:value="${month}" class="form-control">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
+          <label class="form-label">GST Financial Year</label>
+          <select name="financialYear" class="form-select">
+            <option th:each="year : ${financialYears}" th:value="${year}" th:selected="${year == financialYear}" th:text="${year}">2026-27</option>
+          </select>
+        </div>
+        <div class="col-md-3">
           <label class="form-label">Crane</label>
           <select name="craneId" class="form-select">
             <option value="">All Cranes</option>
@@ -68,31 +74,28 @@
         <div class="col-md-2">
           <button type="submit" class="btn btn-brand-blue w-100">Show</button>
         </div>
-        <div class="col-md-2">
-          <button type="button" class="btn btn-outline-secondary w-100" onclick="window.print()">PDF</button>
+        <div class="col-md-1">
+          <a class="btn btn-outline-secondary w-100" th:href="@{/reports/download(month=${month},craneId=${selectedCraneId},financialYear=${financialYear})}">PDF</a>
         </div>
       </form>
     </div>
 
     <div class="row g-3 mb-3 summary-section">
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalIncome,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Income</div></div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalExpenses,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Expenses</div></div>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(netProfit,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Month Profit</div></div>
-      </div>
-      <div class="col-md-3">
-        <div class="stat-card"><div class="stat-value">₹<span th:text="${#numbers.formatDecimal(totalPending,0,'COMMA',0,'POINT')}">0</span></div><div class="stat-label">Pending</div></div>
       </div>
     </div>
 
     <div class="card-panel gst-bill-section mb-3">
       <div class="gst-section-head">
         <div class="panel-title">GST Bill Details</div>
-        <button type="button" class="btn btn-outline-secondary btn-sm no-print" onclick="printGstBillSection()">Download PDF</button>
+        <a class="btn btn-outline-secondary btn-sm no-print" th:href="@{/reports/download(month=${month},craneId=${selectedCraneId},section='gst',financialYear=${financialYear})}">Download FY PDF</a>
       </div>
       <div class="table-responsive">
         <table class="table table-sm">
@@ -106,7 +109,6 @@
               <th>CGST</th>
               <th>SGST</th>
               <th>Total</th>
-              <th>Balance</th>
             </tr>
           </thead>
           <tbody>
@@ -119,9 +121,8 @@
               <td th:text="'₹' + ${#numbers.formatDecimal(i.cgstAmount,0,'COMMA',2,'POINT')}">₹0</td>
               <td th:text="'₹' + ${#numbers.formatDecimal(i.sgstAmount,0,'COMMA',2,'POINT')}">₹0</td>
               <td class="fw-bold" th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
-              <td th:text="'₹' + ${#numbers.formatDecimal(i.balanceAmount,0,'COMMA',2,'POINT')}">₹0</td>
             </tr>
-            <tr th:if="${#lists.isEmpty(gstBillInvoices)}"><td colspan="9" class="text-center text-muted">No GST bills for selected month/crane</td></tr>
+            <tr th:if="${#lists.isEmpty(gstBillInvoices)}"><td colspan="8" class="text-center text-muted">No GST bills for selected financial year/crane</td></tr>
           </tbody>
         </table>
       </div>
@@ -181,8 +182,8 @@
                     <span class="badge bg-primary" th:if="${p.invoice != null}">GST</span>
                     <span class="badge bg-secondary" th:if="${p.tripSheet != null}">Regular</span>
                   </td>
-                  <td th:text="${p.invoice != null ? p.invoice.invoiceNo : p.tripSheet.tripSheetNo}">INV / TS</td>
-                  <td th:text="${p.invoice != null ? p.invoice.customer.name : p.tripSheet.customer.name}">Customer</td>
+                  <td th:text="${p.invoice != null ? p.invoice.invoiceNo : (p.tripSheet != null ? p.tripSheet.tripSheetNo : '-')}">INV / TS</td>
+                  <td th:text="${p.invoice != null ? p.invoice.customer.name : (p.tripSheet != null and p.tripSheet.customer != null ? p.tripSheet.customer.name : '-')}">Customer</td>
                   <td th:text="${p.paymentDate}">2026-07-21</td>
                   <td th:text="'₹' + ${#numbers.formatDecimal(p.receivedAmount,0,'COMMA',2,'POINT')}">₹0</td>
                 </tr>
@@ -237,14 +238,5 @@
 
   </div>
 </div>
-<script>
-  function printGstBillSection() {
-    document.body.classList.add('gst-bill-print');
-    window.print();
-  }
-  window.addEventListener('afterprint', function () {
-    document.body.classList.remove('gst-bill-print');
-  });
-</script>
 </body>
 </html>

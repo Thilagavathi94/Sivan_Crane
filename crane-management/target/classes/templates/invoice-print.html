@@ -132,14 +132,15 @@
     .header-crane.left { left: 0; }
     .header-crane.right { right: 0; transform: scaleX(-1); }
     .god-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 2px solid var(--brand);
+      width: 118px;
+      height: 52px;
+      border-radius: 8px;
+      
       background: #fff;
-      object-fit: cover;
+      object-fit: contain;
       object-position: center;
       margin-bottom: 4px;
+      padding: 2px;
     }
     h1 {
       margin: 0;
@@ -439,7 +440,11 @@
         </tr>
         <tr>
           <td>Running Hours</td>
-          <td th:text="${tripCount > 1 ? '' : (invoice.tripSheet != null ? invoice.tripSheet.totalHours : (invoice.manualRunningHours != null and invoice.manualRunningHours.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? invoice.manualRunningHours : ''))}">&nbsp;</td>
+          <td th:text="${tripCount > 1 ? '' : (invoice.tripSheet != null ? invoice.tripSheet.runningHours : invoice.manualRunningHoursWhole)}">&nbsp;</td>
+        </tr>
+        <tr>
+          <td>Running Minutes</td>
+          <td th:text="${tripCount > 1 ? '' : (invoice.tripSheet != null ? invoice.tripSheet.runningMinutes : invoice.manualRunningMinutes)}">&nbsp;</td>
         </tr>
       </table>
 

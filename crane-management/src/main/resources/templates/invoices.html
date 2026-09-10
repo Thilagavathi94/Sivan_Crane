@@ -32,7 +32,19 @@
 
           <form th:action="@{/invoices/save}" th:object="${invoice}" method="post">
             <input type="hidden" th:field="*{id}">
-            <input type="hidden" th:field="*{invoiceNo}">
+            <input type="hidden" th:field="*{financialYear}">
+            <input type="hidden" th:field="*{invoiceStatus}">
+
+            <div class="row" th:if="${invoice.id != null}">
+              <div class="col-7 mb-2">
+                <label class="form-label">Invoice No</label>
+                <input type="text" th:field="*{invoiceNo}" class="form-control" th:readonly="${invoice.invoiceStatus == 'Final'}">
+              </div>
+              <div class="col-5 mb-2">
+                <label class="form-label">Status</label>
+                <div class="form-control bg-light" th:text="${invoice.invoiceStatus ?: 'Draft'}">Draft</div>
+              </div>
+            </div>
 
             <div class="mb-2">
               <label class="form-label">Booking No / Trip Sheet (optional)</label>
@@ -69,9 +81,18 @@
                   <span th:text="${#strings.replace(item.description, 'Trip Sheet ', '')}">TS-00001</span><span th:if="${!iter.last}">, </span>
                 </span>
               </div>
+              <!-- Hidden fields so the pre-filled line items (trip sheet amounts, etc.)
+                   are actually submitted with the form instead of being lost/zeroed out. -->
+              <div th:each="item, iter : *{items}" style="display:none;">
+                <input type="hidden" th:field="*{items[__${iter.index}__].id}">
+                <input type="hidden" th:field="*{items[__${iter.index}__].description}">
+                <input type="hidden" th:field="*{items[__${iter.index}__].hoursOrUnits}">
+                <input type="hidden" th:field="*{items[__${iter.index}__].rate}">
+              </div>
             </div>
 
-            <div class="border rounded p-2 mb-2 bg-light" th:if="${invoice.tripSheet == null}">
+              <div class="alert alert-danger py-2" th:if="${error}" th:text="${error}">Error</div>
+              <div class="border rounded p-2 mb-2 bg-light" th:if="${invoice.tripSheet == null}">
               <div class="fw-bold mb-2" style="font-size:13px;">Manual Trip Sheet Entry</div>
               <div class="row g-2">
                 <div class="col-md-4">
@@ -91,9 +112,13 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Running Hours</label>
-                  <input type="number" step="0.5" th:field="*{manualRunningHours}" class="form-control form-control-sm" placeholder="0">
+                  <input type="number" min="0" step="1" th:field="*{manualRunningHoursWhole}" class="form-control form-control-sm" placeholder="0" required>
                 </div>
                 <div class="col-md-6">
+                  <label class="form-label">Running Minutes</label>
+                  <input type="number" min="0" max="59" step="1" th:field="*{manualRunningMinutes}" class="form-control form-control-sm" placeholder="0" required>
+                </div>
+                <div class="col-md-12">
                   <label class="form-label">Amount</label>
                   <input type="number" step="0.01" th:field="*{manualAmount}" class="form-control form-control-sm" placeholder="0">
                 </div>
@@ -133,7 +158,9 @@
                   <td th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
                   <td>
                     <a th:href="@{'/invoices/edit/' + ${i.id}}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a th:if="${i.invoiceStatus != 'Final'}" th:href="@{'/invoices/finalize/' + ${i.id}}" class="btn btn-sm btn-brand-green" onclick="return confirm('Finalize this invoice number? After finalization, normal editing cannot change the invoice number.')">Final</a>
                     <a th:href="@{'/invoices/print/' + ${i.id}}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Print / Save as PDF to send to customer">PDF</a>
+                    <a th:href="@{'/invoices/delete/' + ${i.id}}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this invoice?')">Delete</a>
                   </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(invoices)}"><td colspan="5" class="text-center text-muted">No invoices yet</td></tr>

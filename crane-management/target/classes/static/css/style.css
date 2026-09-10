@@ -32,10 +32,12 @@ body {
   gap: 12px;
 }
 .topbar .brand .logo-badge {
-  width: 42px; height: 42px;
-  border-radius: 10px;
+  width: 88px; height: 44px;
+  border-radius: 8px;
   object-fit: contain;
   flex-shrink: 0;
+  background: #fff;
+  padding: 3px;
 }
 .topbar .brand h1 { font-size: 18px; margin: 0; font-weight: 700; }
 .topbar .brand p { font-size: 12px; margin: 0; opacity: .75; }
@@ -289,7 +291,7 @@ table.table td { font-size: 14px; vertical-align: middle; }
 
   .topbar { padding: 10px 14px; }
   .topbar .brand { gap: 8px; min-width: 0; }
-  .topbar .brand .logo-badge { width: 34px; height: 34px; font-size: 16px; border-radius: 8px; }
+  .topbar .brand .logo-badge { width: 68px; height: 34px; border-radius: 7px; }
   .topbar .brand h1 { font-size: 14px; white-space: nowrap; }
   .topbar .brand p { display: none; }
   .topbar .user-box { font-size: 12px; white-space: nowrap; }
@@ -356,4 +358,12 @@ table.table td { font-size: 14px; vertical-align: middle; }
   padding: 40px;
   width: 380px;
   box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+
+.login-crane-logo {
+  width: 180px;
+  height: 82px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }

@@ -14,10 +14,13 @@ public class QuotationService {
 
     private final QuotationRepository quotationRepository;
     private final NumberGeneratorService numberGeneratorService;
+    private final AppSettingsService appSettingsService;
 
-    public QuotationService(QuotationRepository quotationRepository, NumberGeneratorService numberGeneratorService) {
+    public QuotationService(QuotationRepository quotationRepository, NumberGeneratorService numberGeneratorService,
+                            AppSettingsService appSettingsService) {
         this.quotationRepository = quotationRepository;
         this.numberGeneratorService = numberGeneratorService;
+        this.appSettingsService = appSettingsService;
     }
 
     public List<Quotation> findAll() {
@@ -32,6 +35,9 @@ public class QuotationService {
     public Quotation save(Quotation quotation) {
         if (quotation.getId() == null) {
             quotation.setQuotationNo(numberGeneratorService.nextQuotationNo());
+        }
+        if (quotation.getFinancialYear() == null || quotation.getFinancialYear().isBlank()) {
+            quotation.setFinancialYear(appSettingsService.getSettings().getCurrentFinancialYear());
         }
 
         BigDecimal subtotal = BigDecimal.ZERO;

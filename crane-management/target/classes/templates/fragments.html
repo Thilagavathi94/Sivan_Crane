@@ -7,7 +7,7 @@
     <div class="topbar-left">
       <button type="button" class="menu-toggle" onclick="toggleSidebar()" aria-label="Open menu">&#9776;</button>
       <div class="brand">
-        <img class="logo-badge" th:src="@{/images/sivan-logo.svg}" alt="Sivan Crane Service">
+        <img class="logo-badge" th:src="@{/images/header-mobile-crane-hd.png}" alt="Sivan Crane Service">
         <div>
           <h1>SIVAN CRANE SERVICE</h1>
           <p>Crane Management &amp; GST Billing Software</p>
@@ -49,6 +49,7 @@
     <a th:href="@{/payments}" th:classappend="${active == 'payments'} ? 'active' : ''">Payments</a>
     <a th:href="@{/expenses}" th:classappend="${active == 'expenses'} ? 'active' : ''">Expenses</a>
     <a th:href="@{/reports}" th:classappend="${active == 'reports'} ? 'active' : ''">Reports</a>
+    <a th:href="@{/settings}" th:classappend="${active == 'settings'} ? 'active' : ''">Settings</a>
   </div>
 </div>
 

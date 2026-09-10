@@ -14,6 +14,7 @@
     <div th:replace="~{fragments :: sidebar('customers')}"></div>
   </div>
   <div class="flex-grow-1 p-4">
+    <div class="alert alert-warning" th:if="${error}" th:text="${error}">Unable to delete customer.</div>
 
     <div class="row g-3">
       <div class="col-md-5">

@@ -1,32 +1,29 @@
 package com.sivan.cranemanagement.service;
 
-import com.sivan.cranemanagement.repository.*;
+import com.sivan.cranemanagement.repository.BookingRepository;
+import com.sivan.cranemanagement.repository.TripSheetRepository;
 import org.springframework.stereotype.Service;
-import java.time.Year;
 
 /**
  * Generates the human-friendly document numbers used across the system:
  * Booking -> BK-00001
  * Trip Sheet -> TS-00001
- * Quotation -> QUO-00001
- * Invoice -> INV-2026-00001 (year-based, as GST invoices typically are)
+ * Quotation -> QUO-001
+ * Invoice -> INV-001
  */
 @Service
 public class NumberGeneratorService {
 
     private final BookingRepository bookingRepository;
     private final TripSheetRepository tripSheetRepository;
-    private final QuotationRepository quotationRepository;
-    private final InvoiceRepository invoiceRepository;
+    private final AppSettingsService appSettingsService;
 
     public NumberGeneratorService(BookingRepository bookingRepository,
                                    TripSheetRepository tripSheetRepository,
-                                   QuotationRepository quotationRepository,
-                                   InvoiceRepository invoiceRepository) {
+                                   AppSettingsService appSettingsService) {
         this.bookingRepository = bookingRepository;
         this.tripSheetRepository = tripSheetRepository;
-        this.quotationRepository = quotationRepository;
-        this.invoiceRepository = invoiceRepository;
+        this.appSettingsService = appSettingsService;
     }
 
     public String nextBookingNo() {
@@ -40,14 +37,11 @@ public class NumberGeneratorService {
     }
 
     public String nextQuotationNo() {
-        long next = quotationRepository.count() + 1;
-        return "QUO-" + pad(next, 5);
+        return appSettingsService.nextQuotationNo();
     }
 
     public String nextInvoiceNo() {
-        long next = invoiceRepository.count() + 1;
-        int year = Year.now().getValue();
-        return "INV-" + year + "-" + pad(next, 5);
+        return appSettingsService.nextInvoiceNo();
     }
 
     private String pad(long number, int width) {

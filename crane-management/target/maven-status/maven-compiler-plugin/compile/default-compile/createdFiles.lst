@@ -1,3 +1,4 @@
+com\sivan\cranemanagement\model\AppSettings.class
 com\sivan\cranemanagement\service\DashboardService.class
 com\sivan\cranemanagement\model\TripSheet.class
 com\sivan\cranemanagement\controller\CustomerController.class
@@ -12,6 +13,7 @@ com\sivan\cranemanagement\controller\DashboardController.class
 com\sivan\cranemanagement\controller\BookingController.class
 com\sivan\cranemanagement\model\Crane.class
 com\sivan\cranemanagement\controller\InvoiceController.class
+com\sivan\cranemanagement\service\AppSettingsService.class
 com\sivan\cranemanagement\config\WebConfig$StringToCraneConverter.class
 com\sivan\cranemanagement\controller\ExpenseController.class
 com\sivan\cranemanagement\controller\ReportController$DailySummary.class
@@ -32,6 +34,7 @@ com\sivan\cranemanagement\controller\CraneController.class
 com\sivan\cranemanagement\repository\PaymentRepository.class
 com\sivan\cranemanagement\repository\InvoiceRepository.class
 com\sivan\cranemanagement\config\SecurityConfig.class
+com\sivan\cranemanagement\controller\CraneController$CraneTripRecord.class
 com\sivan\cranemanagement\service\BookingService.class
 com\sivan\cranemanagement\config\WebConfig$StringToTripSheetConverter.class
 com\sivan\cranemanagement\service\NumberGeneratorService.class
@@ -41,6 +44,7 @@ com\sivan\cranemanagement\service\ExpenseService.class
 com\sivan\cranemanagement\repository\DriverRepository.class
 com\sivan\cranemanagement\repository\TripSheetRepository.class
 com\sivan\cranemanagement\repository\UserRepository.class
+com\sivan\cranemanagement\service\BackupService.class
 com\sivan\cranemanagement\repository\ExpenseRepository.class
 com\sivan\cranemanagement\service\CustomerService.class
 com\sivan\cranemanagement\config\WebConfig$StringToBookingConverter.class
@@ -51,9 +55,11 @@ com\sivan\cranemanagement\config\DataInitializer.class
 com\sivan\cranemanagement\model\Customer.class
 com\sivan\cranemanagement\model\Booking.class
 com\sivan\cranemanagement\config\ThymeleafConfig.class
+com\sivan\cranemanagement\controller\SettingsController.class
 com\sivan\cranemanagement\service\QuotationService.class
 com\sivan\cranemanagement\config\WebConfig$StringToDriverConverter.class
 com\sivan\cranemanagement\model\User.class
+com\sivan\cranemanagement\repository\AppSettingsRepository.class
 com\sivan\cranemanagement\repository\BookingRepository.class
 com\sivan\cranemanagement\model\Quotation.class
 com\sivan\cranemanagement\config\WebConfig$StringToInvoiceConverter.class

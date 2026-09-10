@@ -3,6 +3,7 @@ package com.sivan.cranemanagement.service;
 import com.sivan.cranemanagement.model.*;
 import com.sivan.cranemanagement.repository.BookingRepository;
 import com.sivan.cranemanagement.repository.InvoiceRepository;
+import com.sivan.cranemanagement.repository.PaymentRepository;
 import com.sivan.cranemanagement.repository.TripSheetRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +20,20 @@ public class InvoiceService {
     private final TripSheetRepository tripSheetRepository;
     private final BookingRepository bookingRepository;
     private final NumberGeneratorService numberGeneratorService;
+    private final AppSettingsService appSettingsService;
+    private final PaymentRepository paymentRepository;
 
     public InvoiceService(InvoiceRepository invoiceRepository, TripSheetRepository tripSheetRepository,
                            BookingRepository bookingRepository,
-                           NumberGeneratorService numberGeneratorService) {
+                           NumberGeneratorService numberGeneratorService,
+                           AppSettingsService appSettingsService,
+                           PaymentRepository paymentRepository) {
         this.invoiceRepository = invoiceRepository;
         this.tripSheetRepository = tripSheetRepository;
         this.bookingRepository = bookingRepository;
         this.numberGeneratorService = numberGeneratorService;
+        this.appSettingsService = appSettingsService;
+        this.paymentRepository = paymentRepository;
     }
 
     public List<Invoice> findAll() {
@@ -46,6 +53,14 @@ public class InvoiceService {
         return invoiceRepository.findByInvoiceDateBetween(start, end);
     }
 
+    public List<Invoice> findByFinancialYear(String financialYear) {
+        return invoiceRepository.findByFinancialYearOrderByInvoiceDateAsc(financialYear);
+    }
+
+    public List<String> findFinancialYears() {
+        return invoiceRepository.findDistinctFinancialYears();
+    }
+
     /**
      * Builds a new, unsaved Invoice pre-filled from a Trip Sheet: customer, work
      * description and default crane-rate line item all carry forward automatically.
@@ -61,14 +76,15 @@ public class InvoiceService {
         invoice.setCustomer(tripSheet.getCustomer());
         invoice.setInvoiceDate(LocalDate.now());
 
+        boolean hasTripAmount = tripSheet.getAmount() != null && tripSheet.getAmount().compareTo(BigDecimal.ZERO) > 0;
         InvoiceItem craneItem = new InvoiceItem();
         craneItem.setDescription((tripSheet.getCrane() != null ? tripSheet.getCrane().getCapacity() + " "
                 + tripSheet.getCrane().getType() + " Crane" : "Crane Service"));
-        craneItem.setHoursOrUnits(tripSheet.getTotalHours());
-        craneItem.setRate(ratePerHour != null ? ratePerHour : BigDecimal.ZERO);
+        craneItem.setHoursOrUnits(hasTripAmount ? BigDecimal.ONE : tripSheet.getTotalHours());
+        craneItem.setRate(hasTripAmount ? tripSheet.getAmount() : (ratePerHour != null ? ratePerHour : BigDecimal.ZERO));
         invoice.getItems().add(craneItem);
 
-        if (mobilizationCharge != null && mobilizationCharge.compareTo(BigDecimal.ZERO) > 0) {
+        if (!hasTripAmount && mobilizationCharge != null && mobilizationCharge.compareTo(BigDecimal.ZERO) > 0) {
             InvoiceItem mobItem = new InvoiceItem();
             mobItem.setDescription("Mobilization Charges");
             mobItem.setHoursOrUnits(BigDecimal.ONE);
@@ -103,10 +119,26 @@ public class InvoiceService {
     }
 
     public Invoice save(Invoice invoice) {
-        if (invoice.getId() == null) {
+        if (invoice.getId() != null) {
+            Invoice existing = findById(invoice.getId());
+            if ("Final".equalsIgnoreCase(existing.getInvoiceStatus())) {
+                invoice.setInvoiceNo(existing.getInvoiceNo());
+                invoice.setFinancialYear(existing.getFinancialYear());
+                invoice.setInvoiceStatus(existing.getInvoiceStatus());
+            }
+        }
+
+        if (invoice.getFinancialYear() == null || invoice.getFinancialYear().isBlank()) {
+            invoice.setFinancialYear(appSettingsService.getSettings().getCurrentFinancialYear());
+        }
+        if (invoice.getInvoiceStatus() == null || invoice.getInvoiceStatus().isBlank()) {
+            invoice.setInvoiceStatus("Draft");
+        }
+        if (invoice.getInvoiceNo() == null || invoice.getInvoiceNo().isBlank()) {
             invoice.setInvoiceNo(numberGeneratorService.nextInvoiceNo());
         }
 
+        validateAndSynchronizeManualRunningTime(invoice);
         invoice.setManualRunningHours(nonNull(invoice.getManualRunningHours()));
         invoice.setManualAmount(nonNull(invoice.getManualAmount()));
         if (invoice.getTripSheet() == null
@@ -172,11 +204,39 @@ public class InvoiceService {
         return saved;
     }
 
+    public Invoice finalizeInvoice(Long id) {
+        Invoice invoice = findById(id);
+        if (invoice.getInvoiceNo() == null || invoice.getInvoiceNo().isBlank()) {
+            invoice.setInvoiceNo(numberGeneratorService.nextInvoiceNo());
+        }
+        if (invoice.getFinancialYear() == null || invoice.getFinancialYear().isBlank()) {
+            invoice.setFinancialYear(appSettingsService.getSettings().getCurrentFinancialYear());
+        }
+        invoice.setInvoiceStatus("Final");
+        return invoiceRepository.save(invoice);
+    }
+
     private BigDecimal nonNull(BigDecimal value) {
         return Objects.requireNonNullElse(value, BigDecimal.ZERO);
     }
 
+    private void validateAndSynchronizeManualRunningTime(Invoice invoice) {
+        Integer hours = invoice.getManualRunningHoursWhole();
+        Integer minutes = invoice.getManualRunningMinutes();
+        if (hours == null || hours < 0 || minutes == null || minutes < 0 || minutes > 59) {
+            throw new IllegalArgumentException("Manual running time must use whole hours and minutes from 0 to 59.");
+        }
+        invoice.synchronizeManualRunningTime();
+    }
+
     public void delete(Long id) {
+        // Payments recorded against this invoice would otherwise block deletion
+        // with a foreign key error - unlink them (the payment record stays, it
+        // just no longer references a deleted invoice) before removing it.
+        for (Payment payment : paymentRepository.findByInvoiceId(id)) {
+            payment.setInvoice(null);
+            paymentRepository.save(payment);
+        }
         invoiceRepository.deleteById(id);
     }
 
