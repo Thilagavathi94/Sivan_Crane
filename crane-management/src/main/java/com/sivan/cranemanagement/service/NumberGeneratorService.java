@@ -26,10 +26,11 @@ public class NumberGeneratorService {
         this.appSettingsService = appSettingsService;
     }
 
-    public String nextBookingNo() {
-        long next = bookingRepository.count() + 1;
-        return "BK-" + pad(next, 5);
-    }
+   public String nextBookingNo() {
+    Long max = bookingRepository.findMaxBookingNumber();
+    long next = (max == null) ? 1 : max + 1;
+    return "BK-" + pad(next, 5);
+}
 
     public String nextTripSheetNo() {
         long next = tripSheetRepository.count() + 1;

@@ -70,7 +70,7 @@ public class ReportController {
     // Generates a real PDF file (rendered with a headless browser, same approach
     // used for invoices/quotations) so the Reports page's PDF buttons actually
     // download a .pdf file instead of relying on window.print().
-    // section=gst -> only the GST Bill Details table is included in the PDF.
+    // section=gst -> only the selected month's GST Bill Details table is included in the PDF.
     @GetMapping("/reports/download")
     public ResponseEntity<byte[]> download(@RequestParam(required = false) String month,
                                             @RequestParam(required = false) Long craneId,
@@ -83,7 +83,7 @@ public class ReportController {
         byte[] pdf = pdfService.renderPdf(gstOnly ? "gst-report-print" : "monthly-report-print", data, baseUrl(request));
 
         String fileName = gstOnly
-                ? "GST-Bill-Report-" + data.get("financialYear") + ".pdf"
+                ? "GST-Bill-Report-" + data.get("month") + ".pdf"
                 : "Monthly-Report-" + data.get("month") + ".pdf";
 
         return ResponseEntity.ok()
@@ -108,7 +108,7 @@ public class ReportController {
         LocalDate end = selectedMonth.atEndOfMonth();
 
         List<Invoice> invoices = invoiceService.findBetween(start, end);
-        List<Invoice> gstBillInvoices = invoiceService.findByFinancialYear(selectedFinancialYear).stream()
+        List<Invoice> gstBillInvoices = invoices.stream()
                 .filter(invoice -> matchesSelectedCrane(invoice, craneId))
                 .toList();
         List<Payment> payments = paymentService.findBetween(start, end);
@@ -128,6 +128,12 @@ public class ReportController {
         BigDecimal totalExpenses = expenses.stream().map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal gstBillValue = gstBillInvoices.stream().map(Invoice::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal gstBillTaxable = gstBillInvoices.stream().map(Invoice::getTaxableAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal gstBillCgst = gstBillInvoices.stream().map(Invoice::getCgstAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal gstBillSgst = gstBillInvoices.stream().map(Invoice::getSgstAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal gstBillTax = gstBillInvoices.stream()
                 .map(invoice -> invoice.getCgstAmount().add(invoice.getSgstAmount()))
@@ -152,6 +158,9 @@ public class ReportController {
         model.put("invoices", invoices);
         model.put("gstBillInvoices", gstBillInvoices);
         model.put("gstBillValue", gstBillValue);
+        model.put("gstBillTaxable", gstBillTaxable);
+        model.put("gstBillCgst", gstBillCgst);
+        model.put("gstBillSgst", gstBillSgst);
         model.put("gstBillTax", gstBillTax);
         model.put("payments", payments);
         model.put("gstPayments", gstPayments);

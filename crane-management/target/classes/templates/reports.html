@@ -95,7 +95,7 @@
     <div class="card-panel gst-bill-section mb-3">
       <div class="gst-section-head">
         <div class="panel-title">GST Bill Details</div>
-        <a class="btn btn-outline-secondary btn-sm no-print" th:href="@{/reports/download(month=${month},craneId=${selectedCraneId},section='gst',financialYear=${financialYear})}">Download FY PDF</a>
+        <a class="btn btn-outline-secondary btn-sm no-print" th:href="@{/reports/download(month=${month},craneId=${selectedCraneId},section='gst',financialYear=${financialYear})}">Download Month PDF</a>
       </div>
       <div class="table-responsive">
         <table class="table table-sm">
@@ -122,7 +122,7 @@
               <td th:text="'₹' + ${#numbers.formatDecimal(i.sgstAmount,0,'COMMA',2,'POINT')}">₹0</td>
               <td class="fw-bold" th:text="'₹' + ${#numbers.formatDecimal(i.totalAmount,0,'COMMA',2,'POINT')}">₹0</td>
             </tr>
-            <tr th:if="${#lists.isEmpty(gstBillInvoices)}"><td colspan="8" class="text-center text-muted">No GST bills for selected financial year/crane</td></tr>
+            <tr th:if="${#lists.isEmpty(gstBillInvoices)}"><td colspan="8" class="text-center text-muted">No GST bills for selected month/crane</td></tr>
           </tbody>
         </table>
       </div>
