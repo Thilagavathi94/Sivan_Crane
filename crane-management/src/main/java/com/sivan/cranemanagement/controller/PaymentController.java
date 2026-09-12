@@ -1,72 +1,42 @@
 package com.sivan.cranemanagement.controller;
-
-import com.sivan.cranemanagement.model.Payment;
-import com.sivan.cranemanagement.model.Invoice;
-import com.sivan.cranemanagement.model.TripSheet;
-import com.sivan.cranemanagement.service.InvoiceService;
-import com.sivan.cranemanagement.service.PaymentService;
-import com.sivan.cranemanagement.service.TripSheetService;
+import com.sivan.cranemanagement.model.*;
+import com.sivan.cranemanagement.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
-
     private final PaymentService paymentService;
     private final InvoiceService invoiceService;
-    private final TripSheetService tripSheetService;
-
-    public PaymentController(PaymentService paymentService, InvoiceService invoiceService,
-                             TripSheetService tripSheetService) {
-        this.paymentService = paymentService;
-        this.invoiceService = invoiceService;
-        this.tripSheetService = tripSheetService;
-    }
-
-    @GetMapping
-    public String list(Model model) {
-        populateModel(model, new Payment());
+    public PaymentController(PaymentService payments, InvoiceService invoices) { paymentService = payments; invoiceService = invoices; }
+    private String page(Model model, Payment payment) {
+        model.addAttribute("payments", paymentService.findAll());
+        model.addAttribute("pendingInvoices", invoiceService.findAll().stream().filter(i -> i.getBalanceAmount().signum() > 0).toList());
+        model.addAttribute("pendingTrips", paymentService.regularBalances().stream().filter(t -> t.balance().signum() > 0).toList());
+        model.addAttribute("payment", payment);
+        model.addAttribute("selectedReference", payment.getInvoice() != null ? "invoice:" + payment.getInvoice().getId() : payment.getTripSheet() != null ? "trip:" + payment.getTripSheet().getId() : "");
         return "payments";
     }
-
-    @PostMapping("/save")
-    public String save(@ModelAttribute Payment payment,
-                       @RequestParam String paymentTarget,
-                       Model model) {
-        applyPaymentTarget(payment, paymentTarget);
-        paymentService.save(payment);
+    @GetMapping public String list(Model model) { return page(model, new Payment()); }
+    @GetMapping("/edit/{id}") public String edit(@PathVariable Long id, Model model) { return page(model, paymentService.findById(id)); }
+    @GetMapping("/from-invoice/{invoiceId}") public String fromInvoice(@PathVariable Long invoiceId, Model model) {
+        Payment p = new Payment(); p.setInvoice(invoiceService.findById(invoiceId)); return page(model, p);
+    }
+    @PostMapping("/save") public String save(@ModelAttribute Payment payment, @RequestParam(defaultValue="") String reference, RedirectAttributes redirect) {
+        try {
+            if (payment.getId() == null) {
+                payment.setInvoice(null); payment.setTripSheet(null);
+                if (reference.startsWith("invoice:")) { Invoice i = new Invoice(); i.setId(Long.valueOf(reference.substring(8))); payment.setInvoice(i); }
+                else if (reference.startsWith("trip:")) { TripSheet t = new TripSheet(); t.setId(Long.valueOf(reference.substring(5))); payment.setTripSheet(t); }
+            }
+            paymentService.save(payment);
+        } catch (IllegalArgumentException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+            return payment.getId() == null ? "redirect:/payments" : "redirect:/payments/edit/" + payment.getId();
+        }
         return "redirect:/payments";
-    }
-
-    private void populateModel(Model model, Payment payment) {
-        model.addAttribute("payments", paymentService.findAll());
-        model.addAttribute("invoices", invoiceService.findAll());
-        model.addAttribute("pendingInvoices", invoiceService.findPending());
-        model.addAttribute("regularTripSheets", tripSheetService.findRegularTripSheets());
-        model.addAttribute("payment", payment);
-    }
-
-    private void applyPaymentTarget(Payment payment, String paymentTarget) {
-        if (paymentTarget == null || paymentTarget.isBlank()) {
-            throw new RuntimeException("Select an invoice number or trip sheet number");
-        }
-        String[] parts = paymentTarget.split(":", 2);
-        if (parts.length != 2) {
-            throw new RuntimeException("Invalid payment target");
-        }
-        Long id = Long.valueOf(parts[1]);
-        if ("INV".equals(parts[0])) {
-            Invoice invoice = invoiceService.findById(id);
-            payment.setInvoice(invoice);
-            payment.setTripSheet(null);
-        } else if ("TS".equals(parts[0])) {
-            TripSheet tripSheet = tripSheetService.findById(id);
-            payment.setTripSheet(tripSheet);
-            payment.setInvoice(null);
-        } else {
-            throw new RuntimeException("Invalid payment target");
-        }
     }
 }

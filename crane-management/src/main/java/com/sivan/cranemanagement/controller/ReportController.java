@@ -140,6 +140,11 @@ public class ReportController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Object> model = new LinkedHashMap<>();
+        List<PaymentService.TripBalance> regularTrips = paymentService.regularBalancesBetween(start, end, craneId);
+        model.put("regularTrips", regularTrips);
+        model.put("regularTotal", regularTrips.stream().map(r -> r.trip().getAmount()).reduce(BigDecimal.ZERO, BigDecimal::add));
+        model.put("regularReceived", regularTrips.stream().map(PaymentService.TripBalance::received).reduce(BigDecimal.ZERO, BigDecimal::add));
+        model.put("regularPending", regularTrips.stream().map(PaymentService.TripBalance::balance).reduce(BigDecimal.ZERO, BigDecimal::add));
         model.put("totalBookings", bookingService.count());
         model.put("totalInvoices", invoices.size());
         model.put("totalIncome", totalIncome);

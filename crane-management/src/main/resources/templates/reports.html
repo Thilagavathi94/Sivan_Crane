@@ -52,7 +52,18 @@
       <h4 th:text="'Monthly Report - ' + ${month}">Monthly Report</h4>
     </div>
 
-    <div class="card-panel mb-3 no-print">
+    <div class="card-panel regular-report-section">
+      <div class="panel-title">Regular Trip Sheets — Selected Month</div>
+      <p class="small text-muted">Filtered by trip date. Received and balance show current payment totals. Regular amounts are separate from the GST invoice summaries.</p>
+      <div class="table-responsive"><table class="table table-sm" id="regularTripReport">
+        <thead><tr><th>Trip Sheet</th><th>Date</th><th>Customer</th><th>Crane</th><th>Regular Amount</th><th>Received</th><th>Balance</th><th>Status</th></tr></thead>
+        <tbody><tr th:each="r : ${regularTrips}">
+          <td th:text="${r.trip.tripSheetNo}"></td><td th:text="${r.trip.tripDate}"></td><td th:text="${r.trip.customer.name}"></td><td th:text="${r.trip.crane != null ? r.trip.crane.registrationNo : ''}"></td>
+          <td th:text="${#numbers.formatDecimal(r.trip.amount,0,'COMMA',2,'POINT')}"></td><td th:text="${#numbers.formatDecimal(r.received,0,'COMMA',2,'POINT')}"></td><td th:text="${#numbers.formatDecimal(r.balance,0,'COMMA',2,'POINT')}"></td><td th:text="${r.status}"></td>
+        </tr><tr th:if="${#lists.isEmpty(regularTrips)}"><td colspan="8">No regular trip sheets in this period.</td></tr></tbody>
+        <tfoot><tr><th colspan="4">Total (Rs.)</th><th th:text="${#numbers.formatDecimal(regularTotal,0,'COMMA',2,'POINT')}"></th><th th:text="${#numbers.formatDecimal(regularReceived,0,'COMMA',2,'POINT')}"></th><th th:text="${#numbers.formatDecimal(regularPending,0,'COMMA',2,'POINT')}"></th><th></th></tr></tfoot>
+      </table></div>
+    </div>    <div class="card-panel mb-3 no-print">
       <form th:action="@{/reports}" method="get" class="row g-2 align-items-end">
         <div class="col-md-3">
           <label class="form-label">Report Month</label>

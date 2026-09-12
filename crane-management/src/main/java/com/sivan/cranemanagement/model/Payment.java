@@ -22,6 +22,10 @@ public class Payment {
     @JoinColumn(name = "trip_sheet_id")
     private TripSheet tripSheet;
 
+    public String getReference() {
+        return invoice != null ? invoice.getInvoiceNo() : tripSheet != null ? tripSheet.getTripSheetNo() : "Unknown";
+    }
+
     private LocalDate paymentDate;
 
     private BigDecimal receivedAmount = BigDecimal.ZERO;
